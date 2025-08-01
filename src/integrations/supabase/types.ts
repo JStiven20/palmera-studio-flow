@@ -14,7 +14,143 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      expense_records: {
+        Row: {
+          amount: number
+          created_at: string | null
+          date: string
+          description: string | null
+          id: string
+          payment_method: Database["public"]["Enums"]["payment_method"]
+          reason: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          date?: string
+          description?: string | null
+          id?: string
+          payment_method: Database["public"]["Enums"]["payment_method"]
+          reason: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          date?: string
+          description?: string | null
+          id?: string
+          payment_method?: Database["public"]["Enums"]["payment_method"]
+          reason?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      income_records: {
+        Row: {
+          client_name: string
+          created_at: string | null
+          date: string
+          id: string
+          manicurist: Database["public"]["Enums"]["manicurist"]
+          payment_method: Database["public"]["Enums"]["payment_method"]
+          price: number
+          service_id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          client_name: string
+          created_at?: string | null
+          date?: string
+          id?: string
+          manicurist: Database["public"]["Enums"]["manicurist"]
+          payment_method: Database["public"]["Enums"]["payment_method"]
+          price: number
+          service_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          client_name?: string
+          created_at?: string | null
+          date?: string
+          id?: string
+          manicurist?: Database["public"]["Enums"]["manicurist"]
+          payment_method?: Database["public"]["Enums"]["payment_method"]
+          price?: number
+          service_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "income_records_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          name: string
+          role: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          name: string
+          role?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          name?: string
+          role?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      services: {
+        Row: {
+          category: string
+          created_at: string | null
+          default_price: number | null
+          id: string
+          name: string
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          default_price?: number | null
+          id?: string
+          name: string
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          default_price?: number | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +159,10 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      manicurist: "Maria" | "Carmen" | "Sofia" | "Ana"
+      manicurist_type: "Yuli" | "Anna" | "Genesis" | "Tamar" | "Intern"
+      payment_method: "efectivo" | "tarjeta" | "transferencia" | "bizum"
+      payment_method_type: "Efectivo" | "Tarjeta" | "Transferencia" | "Bizum"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +289,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      manicurist: ["Maria", "Carmen", "Sofia", "Ana"],
+      manicurist_type: ["Yuli", "Anna", "Genesis", "Tamar", "Intern"],
+      payment_method: ["efectivo", "tarjeta", "transferencia", "bizum"],
+      payment_method_type: ["Efectivo", "Tarjeta", "Transferencia", "Bizum"],
+    },
   },
 } as const
