@@ -8,47 +8,47 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Palmera Studio Brand Colors */
-    --background: 28 20% 97%;
-    --foreground: 30 8% 20%;
+    /* Palmera Studio - Diseño Minimalista */
+    --background: 0 0% 98%;
+    --foreground: 0 0% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 30 8% 20%;
+    --card-foreground: 0 0% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 30 8% 20%;
+    --popover-foreground: 0 0% 15%;
 
-    /* Verde palma principal */
-    --primary: 144 25% 35%;
+    /* Verde palma minimalista */
+    --primary: 144 20% 40%;
     --primary-foreground: 0 0% 98%;
-    --primary-glow: 144 30% 45%;
+    --primary-glow: 144 25% 50%;
 
-    /* Beige elegante */
-    --secondary: 35 15% 88%;
-    --secondary-foreground: 30 8% 20%;
+    /* Gris suave */
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 15%;
 
-    --muted: 35 15% 92%;
-    --muted-foreground: 30 5% 55%;
+    --muted: 0 0% 95%;
+    --muted-foreground: 0 0% 45%;
 
-    /* Dorado accent */
-    --accent: 42 85% 55%;
-    --accent-foreground: 30 8% 20%;
+    /* Accent verde claro */
+    --accent: 144 15% 85%;
+    --accent-foreground: 0 0% 15%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 35 10% 85%;
-    --input: 35 10% 90%;
-    --ring: 144 25% 35%;
+    --border: 0 0% 90%;
+    --input: 0 0% 96%;
+    --ring: 144 20% 40%;
 
-    /* Gradientes de marca */
-    --gradient-hero: linear-gradient(135deg, hsl(144 25% 35%), hsl(144 30% 45%));
-    --gradient-primary: linear-gradient(135deg, hsl(144 25% 35%), hsl(144 30% 45%));
-    --gradient-accent: linear-gradient(135deg, hsl(42 85% 55%), hsl(42 90% 65%));
+    /* Gradientes minimalistas */
+    --gradient-hero: linear-gradient(135deg, hsl(0 0% 98%), hsl(0 0% 95%));
+    --gradient-primary: linear-gradient(135deg, hsl(144 20% 40%), hsl(144 25% 50%));
+    --gradient-accent: linear-gradient(135deg, hsl(144 15% 85%), hsl(144 20% 90%));
     
-    /* Sombras elegantes */
-    --shadow-elegant: 0 10px 30px -10px hsl(144 25% 35% / 0.3);
-    --shadow-glow: 0 0 40px hsl(144 30% 45% / 0.2);
+    /* Sombras suaves */
+    --shadow-elegant: 0 4px 20px -8px hsl(0 0% 0% / 0.1);
+    --shadow-glow: 0 0 20px hsl(144 20% 40% / 0.1);
 
     --radius: 0.75rem;
 
@@ -70,35 +70,35 @@ All colors MUST be HSL.
   }
 
   .dark {
-    /* Palmera Studio Dark Theme */
-    --background: 30 8% 12%;
-    --foreground: 35 15% 92%;
+    /* Palmera Studio Dark Theme - Minimalista */
+    --background: 0 0% 8%;
+    --foreground: 0 0% 95%;
 
-    --card: 30 8% 15%;
-    --card-foreground: 35 15% 92%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 30 8% 15%;
-    --popover-foreground: 35 15% 92%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 144 30% 45%;
-    --primary-foreground: 30 8% 12%;
-    --primary-glow: 144 35% 55%;
+    --primary: 144 25% 50%;
+    --primary-foreground: 0 0% 8%;
+    --primary-glow: 144 30% 60%;
 
-    --secondary: 30 8% 20%;
-    --secondary-foreground: 35 15% 88%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 90%;
 
-    --muted: 30 8% 18%;
-    --muted-foreground: 35 10% 65%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 60%;
 
-    --accent: 42 85% 55%;
-    --accent-foreground: 30 8% 12%;
+    --accent: 144 15% 20%;
+    --accent-foreground: 0 0% 95%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 30 8% 25%;
-    --input: 30 8% 22%;
-    --ring: 144 30% 45%;
+    --border: 0 0% 20%;
+    --input: 0 0% 15%;
+    --ring: 144 25% 50%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
