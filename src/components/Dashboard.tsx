@@ -163,42 +163,42 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground mb-2">Panel de Control</h1>
-        <p className="text-muted-foreground">Resumen de la actividad de Palmera Estudio</p>
+      <div className="text-center sm:text-left">
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Panel de Control</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">Resumen de la actividad de Palmera Estudio</p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <Card className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm transition-all hover:shadow-glow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-card-foreground">Ingresos Hoy</CardTitle>
-            <Euro className="h-4 w-4 text-primary" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 sm:px-6">
+            <CardTitle className="text-xs sm:text-sm font-medium text-card-foreground">Ingresos Hoy</CardTitle>
+            <Euro className="h-4 w-4 text-primary flex-shrink-0" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-primary">€{stats.todayIncome.toFixed(2)}</div>
+          <CardContent className="px-4 sm:px-6">
+            <div className="text-xl sm:text-2xl font-bold text-primary">€{stats.todayIncome.toFixed(2)}</div>
             <p className="text-xs text-muted-foreground">Servicios realizados hoy</p>
           </CardContent>
         </Card>
 
         <Card className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm transition-all hover:shadow-glow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-card-foreground">Gastos Hoy</CardTitle>
-            <TrendingDown className="h-4 w-4 text-destructive" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 sm:px-6">
+            <CardTitle className="text-xs sm:text-sm font-medium text-card-foreground">Gastos Hoy</CardTitle>
+            <TrendingDown className="h-4 w-4 text-destructive flex-shrink-0" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-destructive">€{stats.todayExpenses.toFixed(2)}</div>
+          <CardContent className="px-4 sm:px-6">
+            <div className="text-xl sm:text-2xl font-bold text-destructive">€{stats.todayExpenses.toFixed(2)}</div>
             <p className="text-xs text-muted-foreground">Gastos registrados hoy</p>
           </CardContent>
         </Card>
 
         <Card className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm transition-all hover:shadow-glow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-card-foreground">Balance Hoy</CardTitle>
-            <Target className="h-4 w-4 text-accent" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 sm:px-6">
+            <CardTitle className="text-xs sm:text-sm font-medium text-card-foreground">Balance Hoy</CardTitle>
+            <Target className="h-4 w-4 text-accent flex-shrink-0" />
           </CardHeader>
-          <CardContent>
-            <div className={`text-2xl font-bold ${(stats.todayIncome - stats.todayExpenses) >= 0 ? 'text-primary' : 'text-destructive'}`}>
+          <CardContent className="px-4 sm:px-6">
+            <div className={`text-xl sm:text-2xl font-bold ${(stats.todayIncome - stats.todayExpenses) >= 0 ? 'text-primary' : 'text-destructive'}`}>
               €{(stats.todayIncome - stats.todayExpenses).toFixed(2)}
             </div>
             <p className="text-xs text-muted-foreground">Beneficio del día</p>
@@ -206,34 +206,34 @@ const Dashboard = () => {
         </Card>
 
         <Card className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm transition-all hover:shadow-glow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-card-foreground">Ingresos del Mes</CardTitle>
-            <TrendingUp className="h-4 w-4 text-primary" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 sm:px-6">
+            <CardTitle className="text-xs sm:text-sm font-medium text-card-foreground">Ingresos del Mes</CardTitle>
+            <TrendingUp className="h-4 w-4 text-primary flex-shrink-0" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-primary">€{stats.monthlyIncome.toFixed(2)}</div>
+          <CardContent className="px-4 sm:px-6">
+            <div className="text-xl sm:text-2xl font-bold text-primary">€{stats.monthlyIncome.toFixed(2)}</div>
             <p className="text-xs text-muted-foreground">Total facturado este mes</p>
           </CardContent>
         </Card>
 
         <Card className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm transition-all hover:shadow-glow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-card-foreground">Gastos del Mes</CardTitle>
-            <TrendingDown className="h-4 w-4 text-destructive" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 sm:px-6">
+            <CardTitle className="text-xs sm:text-sm font-medium text-card-foreground">Gastos del Mes</CardTitle>
+            <TrendingDown className="h-4 w-4 text-destructive flex-shrink-0" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-destructive">€{stats.monthlyExpenses.toFixed(2)}</div>
+          <CardContent className="px-4 sm:px-6">
+            <div className="text-xl sm:text-2xl font-bold text-destructive">€{stats.monthlyExpenses.toFixed(2)}</div>
             <p className="text-xs text-muted-foreground">Total gastado este mes</p>
           </CardContent>
         </Card>
 
         <Card className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm transition-all hover:shadow-glow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-card-foreground">Clientes del Mes</CardTitle>
-            <Users className="h-4 w-4 text-accent" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 sm:px-6">
+            <CardTitle className="text-xs sm:text-sm font-medium text-card-foreground">Clientes del Mes</CardTitle>
+            <Users className="h-4 w-4 text-accent flex-shrink-0" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-accent">{stats.totalClients}</div>
+          <CardContent className="px-4 sm:px-6">
+            <div className="text-xl sm:text-2xl font-bold text-accent">{stats.totalClients}</div>
             <p className="text-xs text-muted-foreground">Clientes únicos atendidos</p>
           </CardContent>
         </Card>
@@ -241,16 +241,16 @@ const Dashboard = () => {
 
       {/* Quick Actions */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">Acciones Rápidas</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <h2 className="text-lg sm:text-xl font-semibold mb-4 text-center sm:text-left">Acciones Rápidas</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {quickActions.map((action, index) => (
             <Card key={index} className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm transition-all hover:shadow-glow cursor-pointer transform hover:scale-105" onClick={action.action}>
-              <CardHeader className={`${action.className} rounded-t-lg`}>
-                <div className="flex items-center gap-3">
-                  <action.icon className="h-6 w-6" />
-                  <div>
-                    <CardTitle className="text-lg">{action.title}</CardTitle>
-                    <CardDescription className="text-current/80">{action.description}</CardDescription>
+              <CardHeader className={`${action.className} rounded-t-lg px-4 sm:px-6 py-3 sm:py-4`}>
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <action.icon className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <CardTitle className="text-base sm:text-lg truncate">{action.title}</CardTitle>
+                    <CardDescription className="text-current/80 text-sm truncate">{action.description}</CardDescription>
                   </div>
                 </div>
               </CardHeader>

@@ -107,17 +107,18 @@ const Expenses = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Gastos</h1>
-            <p className="text-muted-foreground">Historial y gestión de gastos</p>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="text-center sm:text-left">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Gastos</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">Historial y gestión de gastos</p>
           </div>
           <Button 
             onClick={() => navigate('/expense/new')}
-            className="gradient-primary text-white shadow-elegant hover:shadow-glow"
+            className="gradient-primary text-white shadow-elegant hover:shadow-glow w-full sm:w-auto"
           >
             <Plus className="h-4 w-4 mr-2" />
-            Nuevo Gasto
+            <span className="sm:inline">Nuevo Gasto</span>
+            <span className="sm:hidden">Nuevo</span>
           </Button>
         </div>
 
@@ -144,12 +145,12 @@ const Expenses = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Motivo</TableHead>
-                      <TableHead>Descripción</TableHead>
-                      <TableHead>Importe</TableHead>
-                      <TableHead>Pago</TableHead>
-                      <TableHead>Fecha</TableHead>
-                      <TableHead className="text-right">Acciones</TableHead>
+                      <TableHead className="min-w-[120px]">Motivo</TableHead>
+                      <TableHead className="hidden sm:table-cell min-w-[140px]">Descripción</TableHead>
+                      <TableHead className="min-w-[80px]">Importe</TableHead>
+                      <TableHead className="hidden lg:table-cell min-w-[100px]">Pago</TableHead>
+                      <TableHead className="min-w-[100px]">Fecha</TableHead>
+                      <TableHead className="text-right min-w-[80px]">Acciones</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -157,15 +158,19 @@ const Expenses = () => {
                       <TableRow key={expense.id} className="hover:bg-muted/50">
                         <TableCell className="font-medium">
                           <div className="flex items-center gap-2">
-                            <FileText className="h-4 w-4 text-muted-foreground" />
-                            {expense.reason}
+                            <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                            <span className="truncate">{expense.reason}</span>
+                          </div>
+                          <div className="sm:hidden mt-1">
+                            <p className="text-sm font-medium text-destructive">€{expense.amount.toFixed(2)}</p>
+                            <p className="text-xs text-muted-foreground truncate">{expense.description || 'Sin descripción'}</p>
                           </div>
                         </TableCell>
-                        <TableCell className="max-w-xs truncate">
+                        <TableCell className="hidden sm:table-cell max-w-xs truncate">
                           {expense.description || 'Sin descripción'}
                         </TableCell>
-                        <TableCell className="font-semibold text-destructive">€{expense.amount.toFixed(2)}</TableCell>
-                        <TableCell>
+                        <TableCell className="font-semibold text-destructive hidden sm:table-cell">€{expense.amount.toFixed(2)}</TableCell>
+                        <TableCell className="hidden lg:table-cell">
                           <Badge className={getPaymentMethodBadge(expense.payment_method)}>
                             <CreditCard className="h-3 w-3 mr-1" />
                             {expense.payment_method}
@@ -173,8 +178,8 @@ const Expenses = () => {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-muted-foreground" />
-                            {format(new Date(expense.date), 'dd/MM/yyyy', { locale: es })}
+                            <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                            <span className="text-sm">{format(new Date(expense.date), 'dd/MM', { locale: es })}</span>
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
@@ -182,7 +187,7 @@ const Expenses = () => {
                             variant="outline"
                             size="sm"
                             onClick={() => deleteExpense(expense.id)}
-                            className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                            className="text-destructive hover:bg-destructive hover:text-destructive-foreground h-8 w-8 p-0"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -202,7 +207,7 @@ const Expenses = () => {
               <CardTitle className="text-card-foreground">Resumen</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="text-center p-4 bg-destructive/10 rounded-lg">
                   <p className="text-sm text-muted-foreground">Total de Gastos</p>
                   <p className="text-2xl font-bold text-destructive">

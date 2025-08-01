@@ -114,17 +114,18 @@ const Income = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Ingresos</h1>
-            <p className="text-muted-foreground">Historial y gestión de ingresos</p>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="text-center sm:text-left">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Ingresos</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">Historial y gestión de ingresos</p>
           </div>
           <Button 
             onClick={() => navigate('/income/new')}
-            className="gradient-primary text-white shadow-elegant hover:shadow-glow"
+            className="gradient-primary text-white shadow-elegant hover:shadow-glow w-full sm:w-auto"
           >
             <Plus className="h-4 w-4 mr-2" />
-            Nuevo Ingreso
+            <span className="sm:inline">Nuevo Ingreso</span>
+            <span className="sm:hidden">Nuevo</span>
           </Button>
         </div>
 
@@ -151,13 +152,13 @@ const Income = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Cliente</TableHead>
-                      <TableHead>Servicio</TableHead>
-                      <TableHead>Precio</TableHead>
-                      <TableHead>Manicurista</TableHead>
-                      <TableHead>Pago</TableHead>
-                      <TableHead>Fecha</TableHead>
-                      <TableHead className="text-right">Acciones</TableHead>
+                      <TableHead className="min-w-[120px]">Cliente</TableHead>
+                      <TableHead className="hidden sm:table-cell min-w-[140px]">Servicio</TableHead>
+                      <TableHead className="min-w-[80px]">Precio</TableHead>
+                      <TableHead className="hidden md:table-cell min-w-[100px]">Manicurista</TableHead>
+                      <TableHead className="hidden lg:table-cell min-w-[100px]">Pago</TableHead>
+                      <TableHead className="min-w-[100px]">Fecha</TableHead>
+                      <TableHead className="text-right min-w-[80px]">Acciones</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -165,19 +166,23 @@ const Income = () => {
                       <TableRow key={income.id} className="hover:bg-muted/50">
                         <TableCell className="font-medium">
                           <div className="flex items-center gap-2">
-                            <User className="h-4 w-4 text-muted-foreground" />
-                            {income.client_name}
+                            <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                            <span className="truncate">{income.client_name}</span>
+                          </div>
+                          <div className="sm:hidden mt-1">
+                            <p className="text-sm font-medium text-primary">€{income.price.toFixed(2)}</p>
+                            <p className="text-xs text-muted-foreground">{income.services?.name || 'Sin servicio'}</p>
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="hidden sm:table-cell">
                           <div>
-                            <p className="font-medium">{income.services?.name || 'Sin servicio'}</p>
-                            <p className="text-sm text-muted-foreground">{income.services?.category}</p>
+                            <p className="font-medium truncate">{income.services?.name || 'Sin servicio'}</p>
+                            <p className="text-sm text-muted-foreground truncate">{income.services?.category}</p>
                           </div>
                         </TableCell>
-                        <TableCell className="font-semibold text-primary">€{income.price.toFixed(2)}</TableCell>
-                        <TableCell>{income.manicurist}</TableCell>
-                        <TableCell>
+                        <TableCell className="font-semibold text-primary hidden sm:table-cell">€{income.price.toFixed(2)}</TableCell>
+                        <TableCell className="hidden md:table-cell">{income.manicurist}</TableCell>
+                        <TableCell className="hidden lg:table-cell">
                           <Badge className={getPaymentMethodBadge(income.payment_method)}>
                             <CreditCard className="h-3 w-3 mr-1" />
                             {income.payment_method}
@@ -185,8 +190,8 @@ const Income = () => {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-muted-foreground" />
-                            {format(new Date(income.date), 'dd/MM/yyyy', { locale: es })}
+                            <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                            <span className="text-sm">{format(new Date(income.date), 'dd/MM', { locale: es })}</span>
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
@@ -194,7 +199,7 @@ const Income = () => {
                             variant="outline"
                             size="sm"
                             onClick={() => deleteIncome(income.id)}
-                            className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                            className="text-destructive hover:bg-destructive hover:text-destructive-foreground h-8 w-8 p-0"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -214,7 +219,7 @@ const Income = () => {
               <CardTitle className="text-card-foreground">Resumen</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="text-center p-4 bg-primary/10 rounded-lg">
                   <p className="text-sm text-muted-foreground">Total de Ingresos</p>
                   <p className="text-2xl font-bold text-primary">
