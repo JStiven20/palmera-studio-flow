@@ -69,10 +69,10 @@ const Staff = () => {
       <Layout>
         <div className="space-y-6 animate-pulse">
           <div className="h-8 bg-muted rounded w-1/3"></div>
-          <div className="grid grid-cols-5 gap-4">
-            {allManicurists.map((_, i) => (
-              <div key={i} className="h-32 bg-muted rounded-lg"></div>
-            ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {allManicurists.map((_, i) => (
+            <div key={i} className="h-32 bg-muted rounded-lg"></div>
+          ))}
           </div>
         </div>
       </Layout>
@@ -82,37 +82,37 @@ const Staff = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Manicuristas</h1>
-          <p className="text-muted-foreground">Facturación individual de cada manicurista</p>
+        <div className="text-center sm:text-left">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Manicuristas</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Facturación individual de cada manicurista</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
           {allManicurists.map((name) => {
             const stats = manicurists.find(m => m.name === name);
             const isTop = manicurists[0]?.name === name && stats;
             
             return (
-              <Card key={name} className={`shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm ${isTop ? 'ring-2 ring-primary' : ''}`}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-center flex flex-col items-center gap-2">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isTop ? 'bg-primary text-primary-foreground' : 'bg-accent text-accent-foreground'}`}>
-                      {isTop ? <Star className="h-6 w-6" /> : <Users className="h-6 w-6" />}
+              <Card key={name} className={`shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm ${isTop ? 'ring-2 ring-primary' : ''} transition-all hover:shadow-glow`}>
+                <CardHeader className="pb-2 sm:pb-3">
+                  <CardTitle className="text-center flex flex-col items-center gap-1 sm:gap-2">
+                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center ${isTop ? 'bg-primary text-primary-foreground' : 'bg-accent text-accent-foreground'}`}>
+                      {isTop ? <Star className="h-5 w-5 sm:h-6 sm:w-6" /> : <Users className="h-5 w-5 sm:h-6 sm:w-6" />}
                     </div>
-                    <span className="text-lg font-semibold">{name}</span>
+                    <span className="text-base sm:text-lg font-semibold leading-tight">{name}</span>
                     {isTop && <span className="text-xs text-primary font-medium">⭐ Top</span>}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3 text-center">
+                <CardContent className="space-y-2 sm:space-y-3 text-center px-3 sm:px-6">
                   <div>
-                    <p className="text-2xl font-bold text-primary">
+                    <p className="text-xl sm:text-2xl font-bold text-primary">
                       €{(stats?.totalEarnings || 0).toFixed(2)}
                     </p>
                     <p className="text-xs text-muted-foreground">Facturado</p>
                   </div>
                   
                   <div>
-                    <p className="text-lg font-semibold text-accent">
+                    <p className="text-base sm:text-lg font-semibold text-accent">
                       {stats?.servicesCount || 0}
                     </p>
                     <p className="text-xs text-muted-foreground">Servicios</p>
