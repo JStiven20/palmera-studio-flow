@@ -19,7 +19,7 @@ const incomeSchema = z.object({
   client_name: z.string().min(1, 'El nombre del cliente es requerido'),
   service_id: z.string().min(1, 'Selecciona un servicio'),
   price: z.number().min(0.01, 'El precio debe ser mayor a 0'),
-  manicurist: z.enum(['Maria', 'Carmen', 'Sofia', 'Ana']),
+  manicurist: z.enum(['Tamar', 'Anna', 'Yuli', 'Genesis', 'Invitada']),
   payment_method: z.enum(['efectivo', 'tarjeta', 'transferencia', 'bizum']),
   date: z.string().min(1, 'La fecha es requerida'),
 });
@@ -46,7 +46,7 @@ const IncomeNew = () => {
       client_name: '',
       service_id: '',
       price: 0,
-      manicurist: 'Maria',
+      manicurist: 'Tamar',
       payment_method: 'efectivo',
       date: new Date().toISOString().split('T')[0],
     },
@@ -238,10 +238,11 @@ const IncomeNew = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent className="bg-card border-border/50 shadow-elegant z-50">
-                            <SelectItem value="Maria">María</SelectItem>
-                            <SelectItem value="Carmen">Carmen</SelectItem>
-                            <SelectItem value="Sofia">Sofía</SelectItem>
-                            <SelectItem value="Ana">Ana</SelectItem>
+                            <SelectItem value="Tamar">Tamar</SelectItem>
+                            <SelectItem value="Anna">Anna</SelectItem>
+                            <SelectItem value="Yuli">Yuli</SelectItem>
+                            <SelectItem value="Genesis">Genesis</SelectItem>
+                            <SelectItem value="Invitada">Invitada</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />

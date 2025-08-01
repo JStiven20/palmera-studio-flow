@@ -21,7 +21,7 @@ export type Database = {
           date: string
           description: string | null
           id: string
-          payment_method: Database["public"]["Enums"]["payment_method"]
+          payment_method: string
           reason: string
           updated_at: string | null
           user_id: string | null
@@ -32,7 +32,7 @@ export type Database = {
           date?: string
           description?: string | null
           id?: string
-          payment_method: Database["public"]["Enums"]["payment_method"]
+          payment_method: string
           reason: string
           updated_at?: string | null
           user_id?: string | null
@@ -43,7 +43,7 @@ export type Database = {
           date?: string
           description?: string | null
           id?: string
-          payment_method?: Database["public"]["Enums"]["payment_method"]
+          payment_method?: string
           reason?: string
           updated_at?: string | null
           user_id?: string | null
@@ -57,7 +57,7 @@ export type Database = {
           date: string
           id: string
           manicurist: Database["public"]["Enums"]["manicurist"]
-          payment_method: Database["public"]["Enums"]["payment_method"]
+          payment_method: string
           price: number
           service_id: string | null
           updated_at: string | null
@@ -68,8 +68,8 @@ export type Database = {
           created_at?: string | null
           date?: string
           id?: string
-          manicurist: Database["public"]["Enums"]["manicurist"]
-          payment_method: Database["public"]["Enums"]["payment_method"]
+          manicurist?: Database["public"]["Enums"]["manicurist"]
+          payment_method: string
           price: number
           service_id?: string | null
           updated_at?: string | null
@@ -81,7 +81,7 @@ export type Database = {
           date?: string
           id?: string
           manicurist?: Database["public"]["Enums"]["manicurist"]
-          payment_method?: Database["public"]["Enums"]["payment_method"]
+          payment_method?: string
           price?: number
           service_id?: string | null
           updated_at?: string | null
@@ -159,7 +159,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      manicurist: "Maria" | "Carmen" | "Sofia" | "Ana"
+      manicurist: "Tamar" | "Anna" | "Yuli" | "Genesis" | "Invitada"
       manicurist_type: "Yuli" | "Anna" | "Genesis" | "Tamar" | "Intern"
       payment_method: "efectivo" | "tarjeta" | "transferencia" | "bizum"
       payment_method_type: "Efectivo" | "Tarjeta" | "Transferencia" | "Bizum"
@@ -290,7 +290,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      manicurist: ["Maria", "Carmen", "Sofia", "Ana"],
+      manicurist: ["Tamar", "Anna", "Yuli", "Genesis", "Invitada"],
       manicurist_type: ["Yuli", "Anna", "Genesis", "Tamar", "Intern"],
       payment_method: ["efectivo", "tarjeta", "transferencia", "bizum"],
       payment_method_type: ["Efectivo", "Tarjeta", "Transferencia", "Bizum"],
