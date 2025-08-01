@@ -28,19 +28,92 @@ const Dashboard = () => {
 
   useEffect(() => {
     loadDashboardStats();
+    
+    // Set up real-time updates
+    const incomeChannel = supabase
+      .channel('income-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'income_records' }, loadDashboardStats)
+      .subscribe();
+
+    const expenseChannel = supabase
+      .channel('expense-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'expense_records' }, loadDashboardStats)
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(incomeChannel);
+      supabase.removeChannel(expenseChannel);
+    };
   }, []);
 
   const loadDashboardStats = async () => {
     try {
-      // For now, we'll use placeholder data since the database is empty
-      // Real data loading will be implemented once users start using the system
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const today = new Date().toISOString().split('T')[0];
+      const firstDayOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+
+      // Get today's income
+      const { data: todayIncomes } = await supabase
+        .from('income_records')
+        .select('price')
+        .eq('user_id', user.id)
+        .eq('date', today);
+
+      // Get today's expenses
+      const { data: todayExpenses } = await supabase
+        .from('expense_records')
+        .select('amount')
+        .eq('user_id', user.id)
+        .eq('date', today);
+
+      // Get monthly income
+      const { data: monthlyIncomes } = await supabase
+        .from('income_records')
+        .select('price, client_name')
+        .eq('user_id', user.id)
+        .gte('date', firstDayOfMonth);
+
+      // Get monthly expenses
+      const { data: monthlyExpenseData } = await supabase
+        .from('expense_records')
+        .select('amount')
+        .eq('user_id', user.id)
+        .gte('date', firstDayOfMonth);
+
+      // Get manicurists performance
+      const { data: manicurists } = await supabase
+        .from('income_records')
+        .select('manicurist, price')
+        .eq('user_id', user.id)
+        .gte('date', firstDayOfMonth);
+
+      const todayIncomeTotal = todayIncomes?.reduce((sum, record) => sum + (record.price || 0), 0) || 0;
+      const todayExpenseTotal = todayExpenses?.reduce((sum, record) => sum + (record.amount || 0), 0) || 0;
+      const monthlyIncomeTotal = monthlyIncomes?.reduce((sum, record) => sum + (record.price || 0), 0) || 0;
+      const monthlyExpenseTotal = monthlyExpenseData?.reduce((sum, record) => sum + (record.amount || 0), 0) || 0;
+
+      // Count unique clients this month
+      const uniqueClients = new Set(monthlyIncomes?.map(record => record.client_name) || []).size;
+
+      // Find top manicurist
+      const manicuristStats: Record<string, number> = {};
+      manicurists?.forEach(record => {
+        const name = record.manicurist || 'Sin especificar';
+        manicuristStats[name] = (manicuristStats[name] || 0) + (record.price || 0);
+      });
+
+      const topManicurist = Object.entries(manicuristStats)
+        .sort(([,a], [,b]) => b - a)[0]?.[0] || 'Sin datos';
+
       setStats({
-        todayIncome: 0,
-        todayExpenses: 0,
-        monthlyIncome: 0,
-        monthlyExpenses: 0,
-        totalClients: 0,
-        topManicurist: 'Sistema listo'
+        todayIncome: todayIncomeTotal,
+        todayExpenses: todayExpenseTotal,
+        monthlyIncome: monthlyIncomeTotal,
+        monthlyExpenses: monthlyExpenseTotal,
+        totalClients: uniqueClients,
+        topManicurist
       });
     } catch (error) {
       console.error('Error loading dashboard stats:', error);

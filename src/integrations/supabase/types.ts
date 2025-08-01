@@ -57,6 +57,7 @@ export type Database = {
           date: string
           id: string
           manicurist: Database["public"]["Enums"]["manicurist"]
+          manicurist_id: string | null
           payment_method: string
           price: number
           service_id: string | null
@@ -69,6 +70,7 @@ export type Database = {
           date?: string
           id?: string
           manicurist?: Database["public"]["Enums"]["manicurist"]
+          manicurist_id?: string | null
           payment_method: string
           price: number
           service_id?: string | null
@@ -81,6 +83,7 @@ export type Database = {
           date?: string
           id?: string
           manicurist?: Database["public"]["Enums"]["manicurist"]
+          manicurist_id?: string | null
           payment_method?: string
           price?: number
           service_id?: string | null
@@ -89,6 +92,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "income_records_manicurist_id_fkey"
+            columns: ["manicurist_id"]
+            isOneToOne: false
+            referencedRelation: "manicurists"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "income_records_service_id_fkey"
             columns: ["service_id"]
             isOneToOne: false
@@ -96,6 +106,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      manicurists: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -134,6 +171,7 @@ export type Database = {
           default_price: number | null
           id: string
           name: string
+          user_id: string | null
         }
         Insert: {
           category: string
@@ -141,6 +179,7 @@ export type Database = {
           default_price?: number | null
           id?: string
           name: string
+          user_id?: string | null
         }
         Update: {
           category?: string
@@ -148,6 +187,7 @@ export type Database = {
           default_price?: number | null
           id?: string
           name?: string
+          user_id?: string | null
         }
         Relationships: []
       }
