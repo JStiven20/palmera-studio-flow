@@ -97,9 +97,9 @@ const Dashboard = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card className="shadow-card transition-elegant hover:shadow-elegant">
+        <Card className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm transition-all hover:shadow-glow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ingresos Hoy</CardTitle>
+            <CardTitle className="text-sm font-medium text-card-foreground">Ingresos Hoy</CardTitle>
             <Euro className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
@@ -108,9 +108,9 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-card transition-elegant hover:shadow-elegant">
+        <Card className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm transition-all hover:shadow-glow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Gastos Hoy</CardTitle>
+            <CardTitle className="text-sm font-medium text-card-foreground">Gastos Hoy</CardTitle>
             <TrendingDown className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
@@ -119,9 +119,9 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-card transition-elegant hover:shadow-elegant">
+        <Card className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm transition-all hover:shadow-glow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Balance Hoy</CardTitle>
+            <CardTitle className="text-sm font-medium text-card-foreground">Balance Hoy</CardTitle>
             <Target className="h-4 w-4 text-accent" />
           </CardHeader>
           <CardContent>
@@ -132,9 +132,9 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-card transition-elegant hover:shadow-elegant">
+        <Card className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm transition-all hover:shadow-glow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ingresos del Mes</CardTitle>
+            <CardTitle className="text-sm font-medium text-card-foreground">Ingresos del Mes</CardTitle>
             <TrendingUp className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
@@ -143,9 +143,9 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-card transition-elegant hover:shadow-elegant">
+        <Card className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm transition-all hover:shadow-glow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Gastos del Mes</CardTitle>
+            <CardTitle className="text-sm font-medium text-card-foreground">Gastos del Mes</CardTitle>
             <TrendingDown className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
@@ -154,9 +154,9 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-card transition-elegant hover:shadow-elegant">
+        <Card className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm transition-all hover:shadow-glow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Clientes del Mes</CardTitle>
+            <CardTitle className="text-sm font-medium text-card-foreground">Clientes del Mes</CardTitle>
             <Users className="h-4 w-4 text-accent" />
           </CardHeader>
           <CardContent>
@@ -171,7 +171,7 @@ const Dashboard = () => {
         <h2 className="text-xl font-semibold mb-4">Acciones Rápidas</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {quickActions.map((action, index) => (
-            <Card key={index} className="shadow-card transition-elegant hover:shadow-elegant cursor-pointer" onClick={action.action}>
+            <Card key={index} className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm transition-all hover:shadow-glow cursor-pointer transform hover:scale-105" onClick={action.action}>
               <CardHeader className={`${action.className} rounded-t-lg`}>
                 <div className="flex items-center gap-3">
                   <action.icon className="h-6 w-6" />
@@ -187,9 +187,9 @@ const Dashboard = () => {
       </div>
 
       {/* Recent Activity Placeholder */}
-      <Card className="shadow-card">
+      <Card className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-card-foreground">
             <Calendar className="h-5 w-5 text-primary" />
             Actividad Reciente
           </CardTitle>

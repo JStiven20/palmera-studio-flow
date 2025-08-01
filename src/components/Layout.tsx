@@ -34,7 +34,7 @@ const Layout = ({ children }: LayoutProps) => {
         <AppSidebar />
         
         <div className="flex-1 flex flex-col">
-          <header className="h-16 border-b border-border bg-card/50 backdrop-blur-sm flex items-center justify-between px-6">
+          <header className="h-16 border-b border-border bg-card/70 backdrop-blur-md flex items-center justify-between px-6 shadow-sm">
             <div className="flex items-center gap-4">
               <SidebarTrigger />
               <div className="flex items-center gap-2">
@@ -51,7 +51,7 @@ const Layout = ({ children }: LayoutProps) => {
                 variant="outline"
                 size="sm"
                 onClick={signOut}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 hover:bg-destructive hover:text-destructive-foreground border-border/50"
               >
                 <LogOut className="h-4 w-4" />
                 Cerrar Sesión
@@ -59,7 +59,7 @@ const Layout = ({ children }: LayoutProps) => {
             </div>
           </header>
           
-          <main className="flex-1 p-6 bg-gradient-to-br from-background to-secondary/30">
+          <main className="flex-1 p-6 bg-gradient-to-br from-background via-background to-secondary/20">
             {children}
           </main>
         </div>
