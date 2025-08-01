@@ -20,17 +20,18 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
+import { useUserRole } from '@/hooks/useUserRole';
 
 const menuItems = [
-  { title: 'Dashboard', url: '/', icon: Home },
-  { title: 'Registrar Ingreso', url: '/income/new', icon: PlusCircle },
-  { title: 'Registrar Gasto', url: '/expense/new', icon: TrendingDown },
-  { title: 'Ingresos', url: '/income', icon: TrendingUp },
-  { title: 'Gastos', url: '/expenses', icon: TrendingDown },
-  { title: 'Reportes', url: '/reports', icon: BarChart3 },
-  { title: 'Manicuristas', url: '/staff', icon: Users },
-  { title: 'Servicios', url: '/services', icon: FileText },
-  { title: 'Configuración', url: '/settings', icon: Settings },
+  { title: 'Dashboard', url: '/', icon: Home, adminOnly: true },
+  { title: 'Registrar Ingreso', url: '/income/new', icon: PlusCircle, adminOnly: false },
+  { title: 'Registrar Gasto', url: '/expense/new', icon: TrendingDown, adminOnly: false },
+  { title: 'Ingresos', url: '/income', icon: TrendingUp, adminOnly: true },
+  { title: 'Gastos', url: '/expenses', icon: TrendingDown, adminOnly: true },
+  { title: 'Reportes', url: '/reports', icon: BarChart3, adminOnly: true },
+  { title: 'Manicuristas', url: '/staff', icon: Users, adminOnly: true },
+  { title: 'Servicios', url: '/services', icon: FileText, adminOnly: true },
+  { title: 'Configuración', url: '/settings', icon: Settings, adminOnly: true },
 ];
 
 export function AppSidebar() {
@@ -38,6 +39,7 @@ export function AppSidebar() {
   const location = useLocation();
   const currentPath = location.pathname;
   const collapsed = state === 'collapsed';
+  const { isAdmin, loading } = useUserRole();
 
   const isActive = (path: string) => currentPath === path;
   
@@ -57,20 +59,26 @@ export function AppSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
-                      className={getNavClassName(item.url)}
-                      title={collapsed ? item.title : undefined}
-                    >
-                      <item.icon className={`h-5 w-5 ${collapsed ? 'mx-auto' : 'mr-3'} flex-shrink-0`} />
-                      {!collapsed && <span className="font-medium">{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {loading ? (
+                <div className="p-2 text-sm text-muted-foreground">Cargando...</div>
+              ) : (
+                menuItems
+                  .filter(item => !item.adminOnly || isAdmin)
+                  .map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild>
+                        <NavLink 
+                          to={item.url} 
+                          className={getNavClassName(item.url)}
+                          title={collapsed ? item.title : undefined}
+                        >
+                          <item.icon className={`h-5 w-5 ${collapsed ? 'mx-auto' : 'mr-3'} flex-shrink-0`} />
+                          {!collapsed && <span className="font-medium">{item.title}</span>}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

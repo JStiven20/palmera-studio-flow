@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import IncomeNew from "./pages/IncomeNew";
@@ -26,16 +27,16 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/income/new" element={<IncomeNew />} />
-            <Route path="/expense/new" element={<ExpenseNew />} />
-            <Route path="/income" element={<Income />} />
-            <Route path="/expenses" element={<Expenses />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="/staff" element={<Staff />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/settings" element={<Settings />} />
+            <Route path="/income/new" element={<ProtectedRoute><IncomeNew /></ProtectedRoute>} />
+            <Route path="/expense/new" element={<ProtectedRoute><ExpenseNew /></ProtectedRoute>} />
+            <Route path="/income" element={<ProtectedRoute adminOnly><Income /></ProtectedRoute>} />
+            <Route path="/expenses" element={<ProtectedRoute adminOnly><Expenses /></ProtectedRoute>} />
+            <Route path="/reports" element={<ProtectedRoute adminOnly><Reports /></ProtectedRoute>} />
+            <Route path="/staff" element={<ProtectedRoute adminOnly><Staff /></ProtectedRoute>} />
+            <Route path="/services" element={<ProtectedRoute adminOnly><Services /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute adminOnly><Settings /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

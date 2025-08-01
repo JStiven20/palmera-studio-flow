@@ -143,6 +143,7 @@ export type Database = {
           role: string | null
           updated_at: string | null
           user_id: string
+          user_role: Database["public"]["Enums"]["user_role"] | null
         }
         Insert: {
           created_at?: string | null
@@ -152,6 +153,7 @@ export type Database = {
           role?: string | null
           updated_at?: string | null
           user_id: string
+          user_role?: Database["public"]["Enums"]["user_role"] | null
         }
         Update: {
           created_at?: string | null
@@ -161,6 +163,7 @@ export type Database = {
           role?: string | null
           updated_at?: string | null
           user_id?: string
+          user_role?: Database["public"]["Enums"]["user_role"] | null
         }
         Relationships: []
       }
@@ -196,13 +199,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
     }
     Enums: {
       manicurist: "Tamar" | "Anna" | "Yuli" | "Genesis" | "Invitada"
       manicurist_type: "Yuli" | "Anna" | "Genesis" | "Tamar" | "Intern"
       payment_method: "efectivo" | "tarjeta" | "transferencia" | "bizum"
       payment_method_type: "Efectivo" | "Tarjeta" | "Transferencia" | "Bizum"
+      user_role: "admin" | "employee"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -334,6 +341,7 @@ export const Constants = {
       manicurist_type: ["Yuli", "Anna", "Genesis", "Tamar", "Intern"],
       payment_method: ["efectivo", "tarjeta", "transferencia", "bizum"],
       payment_method_type: ["Efectivo", "Tarjeta", "Transferencia", "Bizum"],
+      user_role: ["admin", "employee"],
     },
   },
 } as const
