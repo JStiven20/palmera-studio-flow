@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, Crown } from 'lucide-react';
+import { Eye, EyeOff, Trees } from 'lucide-react';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -51,7 +51,7 @@ const Auth = () => {
     <div className="min-h-screen gradient-hero flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Crown className="h-12 w-12 text-primary mx-auto mb-4" />
+          <Trees className="h-12 w-12 text-primary mx-auto mb-4" />
           <h1 className="text-3xl font-bold text-foreground">Palmera Estudio</h1>
           <p className="text-muted-foreground">Sistema de Gestión Premium</p>
         </div>

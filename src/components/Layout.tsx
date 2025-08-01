@@ -4,7 +4,7 @@ import { Navigate } from 'react-router-dom';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { Button } from '@/components/ui/button';
-import { LogOut, Crown } from 'lucide-react';
+import { LogOut, Trees } from 'lucide-react';
 
 interface LayoutProps {
   children: ReactNode;
@@ -17,7 +17,7 @@ const Layout = ({ children }: LayoutProps) => {
     return (
       <div className="min-h-screen gradient-hero flex items-center justify-center">
         <div className="text-center">
-          <Crown className="h-12 w-12 text-primary mx-auto mb-4 animate-pulse" />
+          <Trees className="h-12 w-12 text-primary mx-auto mb-4 animate-pulse" />
           <p className="text-muted-foreground">Cargando...</p>
         </div>
       </div>
@@ -38,7 +38,7 @@ const Layout = ({ children }: LayoutProps) => {
             <div className="flex items-center gap-4">
               <SidebarTrigger />
               <div className="flex items-center gap-2">
-                <Crown className="h-6 w-6 text-primary" />
+                <Trees className="h-6 w-6 text-primary" />
                 <h1 className="text-xl font-semibold text-foreground">Palmera Estudio</h1>
               </div>
             </div>

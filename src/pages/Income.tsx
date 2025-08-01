@@ -1,23 +1,240 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Euro, Plus, Calendar, User, CreditCard, Trash2 } from 'lucide-react';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+
+interface IncomeRecord {
+  id: string;
+  client_name: string;
+  price: number;
+  manicurist: string;
+  payment_method: string;
+  date: string;
+  created_at: string;
+  services?: { name: string; category: string };
+}
 
 const Income = () => {
+  const [incomes, setIncomes] = useState<IncomeRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (user) {
+      loadIncomes();
+    }
+  }, [user]);
+
+  const loadIncomes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('income_records')
+        .select(`
+          *,
+          services:service_id (
+            name,
+            category
+          )
+        `)
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setIncomes(data || []);
+    } catch (error) {
+      console.error('Error loading incomes:', error);
+      toast({
+        title: 'Error',
+        description: 'No se pudieron cargar los ingresos',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteIncome = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('income_records')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Ingreso eliminado',
+        description: 'El registro se ha eliminado correctamente',
+      });
+
+      setIncomes(incomes.filter(income => income.id !== id));
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const getPaymentMethodBadge = (method: string) => {
+    const colors = {
+      efectivo: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+      tarjeta: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+      transferencia: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+      bizum: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
+    };
+    return colors[method as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+  };
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="space-y-6">
+          <div className="animate-pulse">
+            <div className="h-8 bg-muted rounded w-1/3 mb-6"></div>
+            <div className="h-64 bg-muted rounded"></div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Ingresos</h1>
-          <p className="text-muted-foreground">Historial y gestión de ingresos</p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Ingresos</h1>
+            <p className="text-muted-foreground">Historial y gestión de ingresos</p>
+          </div>
+          <Button 
+            onClick={() => navigate('/income/new')}
+            className="gradient-primary text-white shadow-elegant hover:shadow-glow"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Nuevo Ingreso
+          </Button>
         </div>
 
         <Card className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="text-card-foreground">Lista de Ingresos</CardTitle>
+            <CardTitle className="flex items-center gap-2 text-card-foreground">
+              <Euro className="h-5 w-5 text-primary" />
+              Lista de Ingresos ({incomes.length})
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">Lista de ingresos registrados en desarrollo...</p>
+            {incomes.length === 0 ? (
+              <div className="text-center py-12">
+                <Euro className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">No hay ingresos registrados</h3>
+                <p className="text-muted-foreground mb-4">Comienza registrando tu primer servicio</p>
+                <Button onClick={() => navigate('/income/new')} className="gradient-primary text-white">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Registrar Primer Ingreso
+                </Button>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Cliente</TableHead>
+                      <TableHead>Servicio</TableHead>
+                      <TableHead>Precio</TableHead>
+                      <TableHead>Manicurista</TableHead>
+                      <TableHead>Pago</TableHead>
+                      <TableHead>Fecha</TableHead>
+                      <TableHead className="text-right">Acciones</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {incomes.map((income) => (
+                      <TableRow key={income.id} className="hover:bg-muted/50">
+                        <TableCell className="font-medium">
+                          <div className="flex items-center gap-2">
+                            <User className="h-4 w-4 text-muted-foreground" />
+                            {income.client_name}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <p className="font-medium">{income.services?.name || 'Sin servicio'}</p>
+                            <p className="text-sm text-muted-foreground">{income.services?.category}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-semibold text-primary">€{income.price.toFixed(2)}</TableCell>
+                        <TableCell>{income.manicurist}</TableCell>
+                        <TableCell>
+                          <Badge className={getPaymentMethodBadge(income.payment_method)}>
+                            <CreditCard className="h-3 w-3 mr-1" />
+                            {income.payment_method}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4 text-muted-foreground" />
+                            {format(new Date(income.date), 'dd/MM/yyyy', { locale: es })}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => deleteIncome(income.id)}
+                            className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
           </CardContent>
         </Card>
+
+        {incomes.length > 0 && (
+          <Card className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-card-foreground">Resumen</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center p-4 bg-primary/10 rounded-lg">
+                  <p className="text-sm text-muted-foreground">Total de Ingresos</p>
+                  <p className="text-2xl font-bold text-primary">
+                    €{incomes.reduce((sum, income) => sum + income.price, 0).toFixed(2)}
+                  </p>
+                </div>
+                <div className="text-center p-4 bg-accent/10 rounded-lg">
+                  <p className="text-sm text-muted-foreground">Servicios Realizados</p>
+                  <p className="text-2xl font-bold text-accent">{incomes.length}</p>
+                </div>
+                <div className="text-center p-4 bg-secondary/10 rounded-lg">
+                  <p className="text-sm text-muted-foreground">Precio Promedio</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    €{incomes.length > 0 ? (incomes.reduce((sum, income) => sum + income.price, 0) / incomes.length).toFixed(2) : '0.00'}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </Layout>
   );
