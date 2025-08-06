@@ -3,7 +3,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Euro, TrendingUp, Star } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Users, Euro, TrendingUp, Star, CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface ManicuristStats {
   name: string;
@@ -15,20 +20,31 @@ interface ManicuristStats {
 const Staff = () => {
   const [manicurists, setManicurists] = useState<ManicuristStats[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dateFrom, setDateFrom] = useState<Date>();
+  const [dateTo, setDateTo] = useState<Date>();
   const { user } = useAuth();
 
   useEffect(() => {
     if (user) {
       loadManicuristStats();
     }
-  }, [user]);
+  }, [user, dateFrom, dateTo]);
 
   const loadManicuristStats = async () => {
     try {
-      const { data: incomes } = await supabase
+      let query = supabase
         .from('income_records')
-        .select('manicurist, price')
+        .select('manicurist, price, date')
         .eq('user_id', user?.id);
+
+      if (dateFrom) {
+        query = query.gte('date', format(dateFrom, 'yyyy-MM-dd'));
+      }
+      if (dateTo) {
+        query = query.lte('date', format(dateTo, 'yyyy-MM-dd'));
+      }
+
+      const { data: incomes } = await query;
 
       const stats = incomes?.reduce((acc: Record<string, any>, income) => {
         const manicurist = income.manicurist;
@@ -82,9 +98,78 @@ const Staff = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="text-center sm:text-left">
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Manicuristas</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">Facturación individual de cada manicurista</p>
+        <div className="space-y-4">
+          <div className="text-center sm:text-left">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Manicuristas</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">Facturación individual de cada manicurista</p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+              <span className="text-sm font-medium">Filtrar por fechas:</span>
+              
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-[140px] justify-start text-left font-normal",
+                      !dateFrom && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateFrom ? format(dateFrom, "dd/MM/yyyy") : "Desde"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dateFrom}
+                    onSelect={setDateFrom}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-[140px] justify-start text-left font-normal",
+                      !dateTo && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateTo ? format(dateTo, "dd/MM/yyyy") : "Hasta"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dateTo}
+                    onSelect={setDateTo}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+
+              {(dateFrom || dateTo) && (
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setDateFrom(undefined);
+                    setDateTo(undefined);
+                  }}
+                  className="text-sm"
+                >
+                  Limpiar filtros
+                </Button>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
