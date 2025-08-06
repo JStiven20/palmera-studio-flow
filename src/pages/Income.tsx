@@ -221,39 +221,6 @@ const Income = () => {
           </Button>
         </div>
 
-        {incomes.length > 0 && (
-          <Card className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-card-foreground">
-                <ArrowUpDown className="h-5 w-5 text-primary" />
-                Organizar por
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  variant={sortBy === 'date' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => handleSort('date')}
-                  className={sortBy === 'date' ? 'gradient-primary text-white' : ''}
-                >
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Fecha {sortBy === 'date' && (sortOrder === 'desc' ? '↓' : '↑')}
-                </Button>
-                <Button
-                  variant={sortBy === 'manicurist' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => handleSort('manicurist')}
-                  className={sortBy === 'manicurist' ? 'gradient-primary text-white' : ''}
-                >
-                  <User className="h-4 w-4 mr-2" />
-                  Manicurista {sortBy === 'manicurist' && (sortOrder === 'desc' ? '↓' : '↑')}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         <Card className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-card-foreground">
@@ -280,9 +247,33 @@ const Income = () => {
                       <TableHead className="min-w-[120px]">Cliente</TableHead>
                       <TableHead className="hidden sm:table-cell min-w-[140px]">Servicio</TableHead>
                       <TableHead className="min-w-[80px]">Precio</TableHead>
-                      <TableHead className="hidden md:table-cell min-w-[100px]">Manicurista</TableHead>
+                      <TableHead 
+                        className="hidden md:table-cell min-w-[100px] cursor-pointer hover:bg-muted/50 select-none"
+                        onClick={() => handleSort('manicurist')}
+                      >
+                        <div className="flex items-center gap-1">
+                          Manicurista
+                          {sortBy === 'manicurist' && (
+                            <ArrowUpDown className="h-3 w-3" />
+                          )}
+                          {sortBy === 'manicurist' && sortOrder === 'desc' && <span className="text-xs">↓</span>}
+                          {sortBy === 'manicurist' && sortOrder === 'asc' && <span className="text-xs">↑</span>}
+                        </div>
+                      </TableHead>
                       <TableHead className="hidden lg:table-cell min-w-[100px]">Pago</TableHead>
-                      <TableHead className="min-w-[100px]">Fecha</TableHead>
+                      <TableHead 
+                        className="min-w-[100px] cursor-pointer hover:bg-muted/50 select-none"
+                        onClick={() => handleSort('date')}
+                      >
+                        <div className="flex items-center gap-1">
+                          Fecha
+                          {sortBy === 'date' && (
+                            <ArrowUpDown className="h-3 w-3" />
+                          )}
+                          {sortBy === 'date' && sortOrder === 'desc' && <span className="text-xs">↓</span>}
+                          {sortBy === 'date' && sortOrder === 'asc' && <span className="text-xs">↑</span>}
+                        </div>
+                      </TableHead>
                       <TableHead className="text-right min-w-[80px]">Acciones</TableHead>
                     </TableRow>
                   </TableHeader>
