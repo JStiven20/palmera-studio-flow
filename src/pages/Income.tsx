@@ -8,9 +8,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Euro, Plus, Calendar, User, CreditCard, Trash2 } from 'lucide-react';
+import { Euro, Plus, Calendar, User, CreditCard, Trash2, Edit } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface IncomeRecord {
   id: string;
@@ -26,6 +30,14 @@ interface IncomeRecord {
 const Income = () => {
   const [incomes, setIncomes] = useState<IncomeRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingIncome, setEditingIncome] = useState<IncomeRecord | null>(null);
+  const [editForm, setEditForm] = useState({
+    client_name: '',
+    price: '',
+    manicurist: '',
+    payment_method: '',
+    date: ''
+  });
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -79,6 +91,54 @@ const Income = () => {
       });
 
       setIncomes(incomes.filter(income => income.id !== id));
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const startEdit = (income: IncomeRecord) => {
+    setEditingIncome(income);
+    setEditForm({
+      client_name: income.client_name,
+      price: income.price.toString(),
+      manicurist: income.manicurist,
+      payment_method: income.payment_method,
+      date: income.date
+    });
+  };
+
+  const updateIncome = async () => {
+    if (!editingIncome) return;
+
+    try {
+      const { error } = await supabase
+        .from('income_records')
+        .update({
+          client_name: editForm.client_name,
+          price: parseFloat(editForm.price),
+          manicurist: editForm.manicurist as any,
+          payment_method: editForm.payment_method,
+          date: editForm.date
+        })
+        .eq('id', editingIncome.id);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Ingreso actualizado',
+        description: 'El registro se ha actualizado correctamente',
+      });
+
+      setIncomes(incomes.map(income => 
+        income.id === editingIncome.id 
+          ? { ...income, ...editForm, price: parseFloat(editForm.price) }
+          : income
+      ));
+      setEditingIncome(null);
     } catch (error: any) {
       toast({
         title: 'Error',
@@ -195,14 +255,107 @@ const Income = () => {
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => deleteIncome(income.id)}
-                            className="text-destructive hover:bg-destructive hover:text-destructive-foreground h-8 w-8 p-0"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <div className="flex gap-1 justify-end">
+                            <Dialog open={editingIncome?.id === income.id} onOpenChange={(open) => !open && setEditingIncome(null)}>
+                              <DialogTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => startEdit(income)}
+                                  className="text-primary hover:bg-primary hover:text-primary-foreground h-8 w-8 p-0"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="sm:max-w-[500px]">
+                                <DialogHeader>
+                                  <DialogTitle>Editar Ingreso</DialogTitle>
+                                </DialogHeader>
+                                <div className="grid gap-4 py-4">
+                                  <div className="grid gap-2">
+                                    <Label htmlFor="client_name">Nombre del Cliente</Label>
+                                    <Input
+                                      id="client_name"
+                                      value={editForm.client_name}
+                                      onChange={(e) => setEditForm({ ...editForm, client_name: e.target.value })}
+                                      placeholder="Nombre del cliente"
+                                    />
+                                  </div>
+                                  <div className="grid gap-2">
+                                    <Label htmlFor="price">Precio (€)</Label>
+                                    <Input
+                                      id="price"
+                                      type="number"
+                                      step="0.01"
+                                      value={editForm.price}
+                                      onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
+                                      placeholder="0.00"
+                                    />
+                                  </div>
+                                  <div className="grid gap-2">
+                                    <Label htmlFor="manicurist">Manicurista</Label>
+                                    <Select
+                                      value={editForm.manicurist}
+                                      onValueChange={(value) => setEditForm({ ...editForm, manicurist: value })}
+                                    >
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Selecciona manicurista" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="Tamar">Tamar</SelectItem>
+                                        <SelectItem value="Anna">Anna</SelectItem>
+                                        <SelectItem value="Yuli">Yuli</SelectItem>
+                                        <SelectItem value="Genesis">Genesis</SelectItem>
+                                        <SelectItem value="Invitada">Invitada</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                  <div className="grid gap-2">
+                                    <Label htmlFor="payment_method">Método de Pago</Label>
+                                    <Select
+                                      value={editForm.payment_method}
+                                      onValueChange={(value) => setEditForm({ ...editForm, payment_method: value })}
+                                    >
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Selecciona método de pago" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="efectivo">Efectivo</SelectItem>
+                                        <SelectItem value="tarjeta">Tarjeta</SelectItem>
+                                        <SelectItem value="transferencia">Transferencia</SelectItem>
+                                        <SelectItem value="bizum">Bizum</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                  <div className="grid gap-2">
+                                    <Label htmlFor="date">Fecha</Label>
+                                    <Input
+                                      id="date"
+                                      type="date"
+                                      value={editForm.date}
+                                      onChange={(e) => setEditForm({ ...editForm, date: e.target.value })}
+                                    />
+                                  </div>
+                                </div>
+                                <div className="flex justify-end gap-2">
+                                  <Button variant="outline" onClick={() => setEditingIncome(null)}>
+                                    Cancelar
+                                  </Button>
+                                  <Button onClick={updateIncome} className="gradient-primary text-white">
+                                    Actualizar
+                                  </Button>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => deleteIncome(income.id)}
+                              className="text-destructive hover:bg-destructive hover:text-destructive-foreground h-8 w-8 p-0"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
