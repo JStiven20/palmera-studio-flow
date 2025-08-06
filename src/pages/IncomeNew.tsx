@@ -13,7 +13,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Euro, Save, Plus, Trash2 } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Euro, Save, Plus, Trash2, Check, ChevronsUpDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const incomeSchema = z.object({
   client_name: z.string().min(1, 'El nombre del cliente es requerido'),
@@ -44,6 +47,7 @@ interface Service {
 const IncomeNew = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(false);
+  const [openComboboxes, setOpenComboboxes] = useState<{[key: number]: boolean}>({});
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -256,36 +260,71 @@ const IncomeNew = () => {
                       
                       {form.watch('services')?.map((_, index) => (
                         <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border border-border/50 rounded-lg bg-card/30">
-                          <FormField
-                            control={form.control}
-                            name={`services.${index}.service_id`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Servicio {index + 1}</FormLabel>
-                                <Select 
-                                  onValueChange={(value) => {
-                                    field.onChange(value);
-                                    handleServiceChange(value, index);
-                                  }} 
-                                  value={field.value}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger className="form-input-elegant">
-                                      <SelectValue placeholder="Selecciona un servicio" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent className="bg-card border-border/50 shadow-elegant z-50">
-                                    {services.map((service) => (
-                                      <SelectItem key={service.id} value={service.id}>
-                                        {service.name} - {service.category} (€{service.default_price})
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                           <FormField
+                             control={form.control}
+                             name={`services.${index}.service_id`}
+                             render={({ field }) => (
+                               <FormItem>
+                                 <FormLabel>Servicio {index + 1}</FormLabel>
+                                 <Popover 
+                                   open={openComboboxes[index] || false} 
+                                   onOpenChange={(open) => setOpenComboboxes(prev => ({ ...prev, [index]: open }))}
+                                 >
+                                   <PopoverTrigger asChild>
+                                     <FormControl>
+                                       <Button
+                                         variant="outline"
+                                         role="combobox"
+                                         aria-expanded={openComboboxes[index] || false}
+                                         className={cn(
+                                           "w-full justify-between form-input-elegant",
+                                           !field.value && "text-muted-foreground"
+                                         )}
+                                       >
+                                         {field.value
+                                           ? services.find((service) => service.id === field.value)
+                                             ? `${services.find((service) => service.id === field.value)?.name} - ${services.find((service) => service.id === field.value)?.category} (€${services.find((service) => service.id === field.value)?.default_price})`
+                                             : "Selecciona un servicio"
+                                           : "Selecciona un servicio"
+                                         }
+                                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                       </Button>
+                                     </FormControl>
+                                   </PopoverTrigger>
+                                   <PopoverContent className="w-full p-0 bg-card border-border/50 shadow-elegant z-50">
+                                     <Command>
+                                       <CommandInput placeholder="Buscar servicio..." className="h-9" />
+                                       <CommandList>
+                                         <CommandEmpty>No se encontró ningún servicio.</CommandEmpty>
+                                         <CommandGroup>
+                                           {services.map((service) => (
+                                             <CommandItem
+                                               key={service.id}
+                                               value={`${service.name} ${service.category}`}
+                                               onSelect={() => {
+                                                 field.onChange(service.id);
+                                                 handleServiceChange(service.id, index);
+                                                 setOpenComboboxes(prev => ({ ...prev, [index]: false }));
+                                               }}
+                                             >
+                                               {service.name} - {service.category} (€{service.default_price})
+                                               <Check
+                                                 className={cn(
+                                                   "ml-auto h-4 w-4",
+                                                   field.value === service.id ? "opacity-100" : "opacity-0"
+                                                 )}
+                                               />
+                                             </CommandItem>
+                                           ))}
+                                         </CommandGroup>
+                                       </CommandList>
+                                     </Command>
+                                   </PopoverContent>
+                                 </Popover>
+                                 <FormMessage />
+                               </FormItem>
+                             )}
+                           />
 
                           <FormField
                             control={form.control}
