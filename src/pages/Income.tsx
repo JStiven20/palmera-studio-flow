@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Euro, Plus, Calendar, User, CreditCard, Trash2, Edit } from 'lucide-react';
+import { Euro, Plus, Calendar, User, CreditCard, Trash2, Edit, ArrowUpDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -29,7 +29,10 @@ interface IncomeRecord {
 
 const Income = () => {
   const [incomes, setIncomes] = useState<IncomeRecord[]>([]);
+  const [filteredIncomes, setFilteredIncomes] = useState<IncomeRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState<'date' | 'manicurist'>('date');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [editingIncome, setEditingIncome] = useState<IncomeRecord | null>(null);
   const [editForm, setEditForm] = useState({
     client_name: '',
@@ -47,6 +50,10 @@ const Income = () => {
       loadIncomes();
     }
   }, [user]);
+
+  useEffect(() => {
+    sortIncomes();
+  }, [incomes, sortBy, sortOrder]);
 
   const loadIncomes = async () => {
     try {
@@ -73,6 +80,31 @@ const Income = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const sortIncomes = () => {
+    const sorted = [...incomes].sort((a, b) => {
+      let comparison = 0;
+      
+      if (sortBy === 'date') {
+        comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
+      } else if (sortBy === 'manicurist') {
+        comparison = a.manicurist.localeCompare(b.manicurist);
+      }
+      
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+    
+    setFilteredIncomes(sorted);
+  };
+
+  const handleSort = (newSortBy: 'date' | 'manicurist') => {
+    if (sortBy === newSortBy) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(newSortBy);
+      setSortOrder('desc');
     }
   };
 
@@ -189,15 +221,48 @@ const Income = () => {
           </Button>
         </div>
 
+        {incomes.length > 0 && (
+          <Card className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-card-foreground">
+                <ArrowUpDown className="h-5 w-5 text-primary" />
+                Organizar por
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant={sortBy === 'date' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => handleSort('date')}
+                  className={sortBy === 'date' ? 'gradient-primary text-white' : ''}
+                >
+                  <Calendar className="h-4 w-4 mr-2" />
+                  Fecha {sortBy === 'date' && (sortOrder === 'desc' ? '↓' : '↑')}
+                </Button>
+                <Button
+                  variant={sortBy === 'manicurist' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => handleSort('manicurist')}
+                  className={sortBy === 'manicurist' ? 'gradient-primary text-white' : ''}
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  Manicurista {sortBy === 'manicurist' && (sortOrder === 'desc' ? '↓' : '↑')}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <Card className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-card-foreground">
               <Euro className="h-5 w-5 text-primary" />
-              Lista de Ingresos ({incomes.length})
+              Lista de Ingresos ({filteredIncomes.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {incomes.length === 0 ? (
+            {filteredIncomes.length === 0 ? (
               <div className="text-center py-12">
                 <Euro className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-foreground mb-2">No hay ingresos registrados</h3>
@@ -222,7 +287,7 @@ const Income = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {incomes.map((income) => (
+                    {filteredIncomes.map((income) => (
                       <TableRow key={income.id} className="hover:bg-muted/50">
                         <TableCell className="font-medium">
                           <div className="flex items-center gap-2">
