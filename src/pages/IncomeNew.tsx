@@ -13,18 +13,26 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Euro, Save } from 'lucide-react';
+import { Euro, Save, Plus, Trash2 } from 'lucide-react';
 
 const incomeSchema = z.object({
   client_name: z.string().min(1, 'El nombre del cliente es requerido'),
-  service_id: z.string().min(1, 'Selecciona un servicio'),
-  price: z.number().min(0.01, 'El precio debe ser mayor a 0'),
   manicurist: z.enum(['Tamar', 'Anna', 'Yuli', 'Genesis', 'Invitada']),
   payment_method: z.enum(['efectivo', 'tarjeta', 'transferencia', 'bizum']),
   date: z.string().min(1, 'La fecha es requerida'),
+  services: z.array(z.object({
+    service_id: z.string().min(1, 'Selecciona un servicio'),
+    price: z.number().min(0.01, 'El precio debe ser mayor a 0'),
+  })).min(1, 'Debe agregar al menos un servicio'),
+  extras_price: z.number().min(0, 'El precio de extras no puede ser negativo').optional(),
 });
 
 type IncomeFormData = z.infer<typeof incomeSchema>;
+
+interface ServiceItem {
+  service_id: string;
+  price: number;
+}
 
 interface Service {
   id: string;
@@ -44,11 +52,11 @@ const IncomeNew = () => {
     resolver: zodResolver(incomeSchema),
     defaultValues: {
       client_name: '',
-      service_id: '',
-      price: 0,
       manicurist: 'Tamar',
       payment_method: 'efectivo',
       date: new Date().toISOString().split('T')[0],
+      services: [{ service_id: '', price: 0 }],
+      extras_price: 0,
     },
   });
 
@@ -80,23 +88,57 @@ const IncomeNew = () => {
 
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('income_records')
-        .insert({
+      // Prepare records for each service
+      const records = [];
+      
+      // Add regular services
+      for (const service of data.services) {
+        if (service.service_id && service.price > 0) {
+          records.push({
+            client_name: data.client_name,
+            service_id: service.service_id,
+            price: service.price,
+            manicurist: data.manicurist,
+            payment_method: data.payment_method,
+            date: data.date,
+            user_id: user.id,
+          });
+        }
+      }
+
+      // Add extras if there's a price
+      if (data.extras_price && data.extras_price > 0) {
+        records.push({
           client_name: data.client_name,
-          service_id: data.service_id,
-          price: data.price,
+          service_id: null, // No specific service for extras
+          price: data.extras_price,
           manicurist: data.manicurist,
           payment_method: data.payment_method,
           date: data.date,
           user_id: user.id,
         });
+      }
+
+      if (records.length === 0) {
+        toast({
+          title: 'Error',
+          description: 'Debe agregar al menos un servicio o un precio de extras',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('income_records')
+        .insert(records);
 
       if (error) throw error;
 
+      const totalAmount = records.reduce((sum, record) => sum + record.price, 0);
+      
       toast({
-        title: '¡Ingreso registrado!',
-        description: 'El servicio se ha registrado correctamente',
+        title: '¡Ingresos registrados!',
+        description: `Se registraron ${records.length} servicios por un total de €${totalAmount.toFixed(2)}`,
       });
 
       navigate('/income');
@@ -111,11 +153,33 @@ const IncomeNew = () => {
     }
   };
 
-  const handleServiceChange = (serviceId: string) => {
+  const addService = () => {
+    const currentServices = form.getValues('services');
+    form.setValue('services', [...currentServices, { service_id: '', price: 0 }]);
+  };
+
+  const removeService = (index: number) => {
+    const currentServices = form.getValues('services');
+    if (currentServices.length > 1) {
+      const newServices = currentServices.filter((_, i) => i !== index);
+      form.setValue('services', newServices);
+    }
+  };
+
+  const handleServiceChange = (serviceId: string, index: number) => {
     const service = services.find(s => s.id === serviceId);
     if (service) {
-      form.setValue('price', service.default_price);
+      const currentServices = form.getValues('services');
+      currentServices[index].price = service.default_price;
+      form.setValue('services', currentServices);
     }
+  };
+
+  const getTotalAmount = () => {
+    const formServices = form.watch('services') || [];
+    const extrasPrice = form.watch('extras_price') || 0;
+    const servicesTotal = formServices.reduce((sum, service) => sum + (service.price || 0), 0);
+    return servicesTotal + extrasPrice;
   };
 
   return (
@@ -173,43 +237,101 @@ const IncomeNew = () => {
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="service_id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Servicio</FormLabel>
-                        <Select 
-                          onValueChange={(value) => {
-                            field.onChange(value);
-                            handleServiceChange(value);
-                          }} 
-                          defaultValue={field.value}
+                  {/* Services Section */}
+                  <div className="md:col-span-2">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <FormLabel className="text-base font-medium">Servicios</FormLabel>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={addService}
+                          className="border-border/50 hover:bg-secondary/50"
                         >
-                          <FormControl>
-                            <SelectTrigger className="form-input-elegant">
-                              <SelectValue placeholder="Selecciona un servicio" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent className="bg-card border-border/50 shadow-elegant z-50">
-                            {services.map((service) => (
-                              <SelectItem key={service.id} value={service.id}>
-                                {service.name} - {service.category} (€{service.default_price})
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                          <Plus className="h-4 w-4 mr-2" />
+                          Agregar Servicio
+                        </Button>
+                      </div>
+                      
+                      {form.watch('services')?.map((_, index) => (
+                        <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border border-border/50 rounded-lg bg-card/30">
+                          <FormField
+                            control={form.control}
+                            name={`services.${index}.service_id`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Servicio {index + 1}</FormLabel>
+                                <Select 
+                                  onValueChange={(value) => {
+                                    field.onChange(value);
+                                    handleServiceChange(value, index);
+                                  }} 
+                                  value={field.value}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger className="form-input-elegant">
+                                      <SelectValue placeholder="Selecciona un servicio" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent className="bg-card border-border/50 shadow-elegant z-50">
+                                    {services.map((service) => (
+                                      <SelectItem key={service.id} value={service.id}>
+                                        {service.name} - {service.category} (€{service.default_price})
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
 
+                          <FormField
+                            control={form.control}
+                            name={`services.${index}.price`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Precio (€)</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    type="number" 
+                                    step="0.01"
+                                    placeholder="0.00"
+                                    className="form-input-elegant"
+                                    {...field}
+                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <div className="flex items-end">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => removeService(index)}
+                              disabled={form.watch('services')?.length <= 1}
+                              className="border-destructive/50 text-destructive hover:bg-destructive/10"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Extras Section */}
                   <FormField
                     control={form.control}
-                    name="price"
+                    name="extras_price"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Precio (€)</FormLabel>
+                        <FormLabel>Extras (€)</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
@@ -224,6 +346,13 @@ const IncomeNew = () => {
                       </FormItem>
                     )}
                   />
+
+                  {/* Total Display */}
+                  <div className="bg-secondary/20 p-4 rounded-lg">
+                    <div className="text-lg font-semibold text-foreground">
+                      Total: €{getTotalAmount().toFixed(2)}
+                    </div>
+                  </div>
 
                   <FormField
                     control={form.control}
