@@ -10,7 +10,6 @@ import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -32,17 +31,15 @@ const incomeSchema = z.object({
 
 type IncomeFormData = z.infer<typeof incomeSchema>;
 
-interface ServiceItem {
-  service_id: string;
-  price: number;
-}
-
 interface Service {
   id: string;
   name: string;
   category: string;
   default_price: number;
 }
+
+const CATEGORIES_ORDER = ['Manicura', 'Pedicura', 'Extras'] as const;
+const eur = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
 
 const IncomeNew = () => {
   const [services, setServices] = useState<Service[]>([]);
@@ -73,7 +70,8 @@ const IncomeNew = () => {
       const { data, error } = await supabase
         .from('services')
         .select('*')
-        .order('category', { ascending: true });
+        .order('category', { ascending: true })
+        .order('name', { ascending: true });
 
       if (error) throw error;
       setServices(data || []);
@@ -87,15 +85,19 @@ const IncomeNew = () => {
     }
   };
 
+  const groupByCategory = (items: Service[]) =>
+    items.reduce((acc, s) => {
+      (acc[s.category] ||= []).push(s);
+      return acc;
+    }, {} as Record<string, Service[]>);
+
   const onSubmit = async (data: IncomeFormData) => {
     if (!user) return;
 
     setLoading(true);
     try {
-      // Prepare records for each service
-      const records = [];
-      
-      // Add regular services
+      const records: any[] = [];
+
       for (const service of data.services) {
         if (service.service_id && service.price > 0) {
           records.push({
@@ -110,11 +112,10 @@ const IncomeNew = () => {
         }
       }
 
-      // Add extras if there's a price
       if (data.extras_price && data.extras_price > 0) {
         records.push({
           client_name: data.client_name,
-          service_id: null, // No specific service for extras
+          service_id: null,
           price: data.extras_price,
           manicurist: data.manicurist,
           payment_method: data.payment_method,
@@ -132,17 +133,13 @@ const IncomeNew = () => {
         return;
       }
 
-      const { error } = await supabase
-        .from('income_records')
-        .insert(records);
-
+      const { error } = await supabase.from('income_records').insert(records);
       if (error) throw error;
 
-      const totalAmount = records.reduce((sum, record) => sum + record.price, 0);
-      
+      const totalAmount = records.reduce((sum, r) => sum + r.price, 0);
       toast({
         title: '¡Ingresos registrados!',
-        description: `Se registraron ${records.length} servicios por un total de €${totalAmount.toFixed(2)}`,
+        description: `Se registraron ${records.length} servicios por un total de ${eur.format(totalAmount)}`,
       });
 
       navigate('/income');
@@ -182,9 +179,11 @@ const IncomeNew = () => {
   const getTotalAmount = () => {
     const formServices = form.watch('services') || [];
     const extrasPrice = form.watch('extras_price') || 0;
-    const servicesTotal = formServices.reduce((sum, service) => sum + (service.price || 0), 0);
+    const servicesTotal = formServices.reduce((sum, s) => sum + (s.price || 0), 0);
     return servicesTotal + extrasPrice;
   };
+
+  const servicesByCategory = groupByCategory(services);
 
   return (
     <Layout>
@@ -205,6 +204,7 @@ const IncomeNew = () => {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Cliente */}
                   <FormField
                     control={form.control}
                     name="client_name"
@@ -212,17 +212,14 @@ const IncomeNew = () => {
                       <FormItem>
                         <FormLabel>Nombre del Cliente</FormLabel>
                         <FormControl>
-                          <Input 
-                            {...field} 
-                            placeholder="Ej: María García"
-                            className="form-input-elegant"
-                          />
+                          <Input {...field} placeholder="Ej: María García" className="form-input-elegant" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
 
+                  {/* Fecha */}
                   <FormField
                     control={form.control}
                     name="date"
@@ -230,18 +227,14 @@ const IncomeNew = () => {
                       <FormItem>
                         <FormLabel>Fecha</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="date" 
-                            {...field}
-                            className="form-input-elegant"
-                          />
+                          <Input type="date" {...field} className="form-input-elegant" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
 
-                  {/* Services Section */}
+                  {/* Servicios */}
                   <div className="md:col-span-2">
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
@@ -257,114 +250,125 @@ const IncomeNew = () => {
                           Agregar Servicio
                         </Button>
                       </div>
-                      
-                      {form.watch('services')?.map((_, index) => (
-                        <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border border-border/50 rounded-lg bg-card/30">
-                           <FormField
-                             control={form.control}
-                             name={`services.${index}.service_id`}
-                             render={({ field }) => (
-                               <FormItem>
-                                 <FormLabel>Servicio {index + 1}</FormLabel>
-                                 <Popover 
-                                   open={openComboboxes[index] || false} 
-                                   onOpenChange={(open) => setOpenComboboxes(prev => ({ ...prev, [index]: open }))}
-                                 >
-                                   <PopoverTrigger asChild>
-                                     <FormControl>
-                                       <Button
-                                         variant="outline"
-                                         role="combobox"
-                                         aria-expanded={openComboboxes[index] || false}
-                                         className={cn(
-                                           "w-full justify-between form-input-elegant",
-                                           !field.value && "text-muted-foreground"
-                                         )}
-                                       >
-                                         {field.value
-                                           ? services.find((service) => service.id === field.value)
-                                             ? `${services.find((service) => service.id === field.value)?.name} - ${services.find((service) => service.id === field.value)?.category} (€${services.find((service) => service.id === field.value)?.default_price})`
-                                             : "Selecciona un servicio"
-                                           : "Selecciona un servicio"
-                                         }
-                                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                       </Button>
-                                     </FormControl>
-                                   </PopoverTrigger>
-                                   <PopoverContent className="w-full p-0 bg-card border-border/50 shadow-elegant z-50">
-                                     <Command>
-                                       <CommandInput placeholder="Buscar servicio..." className="h-9" />
-                                       <CommandList>
-                                         <CommandEmpty>No se encontró ningún servicio.</CommandEmpty>
-                                         <CommandGroup>
-                                           {services.map((service) => (
-                                             <CommandItem
-                                               key={service.id}
-                                               value={`${service.name} ${service.category}`}
-                                               onSelect={() => {
-                                                 field.onChange(service.id);
-                                                 handleServiceChange(service.id, index);
-                                                 setOpenComboboxes(prev => ({ ...prev, [index]: false }));
-                                               }}
-                                             >
-                                               {service.name} - {service.category} (€{service.default_price})
-                                               <Check
-                                                 className={cn(
-                                                   "ml-auto h-4 w-4",
-                                                   field.value === service.id ? "opacity-100" : "opacity-0"
-                                                 )}
-                                               />
-                                             </CommandItem>
-                                           ))}
-                                         </CommandGroup>
-                                       </CommandList>
-                                     </Command>
-                                   </PopoverContent>
-                                 </Popover>
-                                 <FormMessage />
-                               </FormItem>
-                             )}
-                           />
 
-                          <FormField
-                            control={form.control}
-                            name={`services.${index}.price`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Precio (€)</FormLabel>
-                                <FormControl>
-                                  <Input 
-                                    type="number" 
-                                    step="0.01"
-                                    placeholder="0.00"
-                                    className="form-input-elegant"
-                                    {...field}
-                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                      {form.watch('services')?.map((_, index) => {
+                        const fieldName = `services.${index}.service_id` as const;
+                        const selected = services.find(s => s.id === form.getValues(fieldName));
+                        return (
+                          <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border border-border/50 rounded-lg bg-card/30">
+                            <FormField
+                              control={form.control}
+                              name={fieldName}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Servicio {index + 1}</FormLabel>
+                                  <Popover
+                                    open={openComboboxes[index] || false}
+                                    onOpenChange={(open) => setOpenComboboxes(prev => ({ ...prev, [index]: open }))}
+                                  >
+                                    <PopoverTrigger asChild>
+                                      <FormControl>
+                                        <Button
+                                          variant="outline"
+                                          role="combobox"
+                                          aria-expanded={openComboboxes[index] || false}
+                                          className={cn(
+                                            "w-full justify-between form-input-elegant",
+                                            !field.value && "text-muted-foreground"
+                                          )}
+                                        >
+                                          {selected
+                                            ? `${selected.name} — ${selected.category} (${eur.format(selected.default_price)})`
+                                            : "Selecciona un servicio"
+                                          }
+                                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                        </Button>
+                                      </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-full p-0 bg-card border-border/50 shadow-elegant z-50">
+                                      <Command>
+                                        <CommandInput placeholder="Buscar servicio..." className="h-9" />
+                                        <CommandList>
+                                          <CommandEmpty>No se encontró ningún servicio.</CommandEmpty>
 
-                          <div className="flex items-end">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => removeService(index)}
-                              disabled={form.watch('services')?.length <= 1}
-                              className="border-destructive/50 text-destructive hover:bg-destructive/10"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                                          {/* 🔥 Grupos por categoría en orden fijo */}
+                                          {CATEGORIES_ORDER.map((cat) => {
+                                            const list = servicesByCategory[cat] || [];
+                                            if (list.length === 0) return null;
+                                            return (
+                                              <CommandGroup key={cat} heading={cat}>
+                                                {list.map((service) => (
+                                                  <CommandItem
+                                                    key={service.id}
+                                                    value={`${service.name} ${service.category}`}
+                                                    onSelect={() => {
+                                                      field.onChange(service.id);
+                                                      handleServiceChange(service.id, index);
+                                                      setOpenComboboxes(prev => ({ ...prev, [index]: false }));
+                                                    }}
+                                                  >
+                                                    {service.name} — {eur.format(service.default_price)}
+                                                    <Check
+                                                      className={cn(
+                                                        "ml-auto h-4 w-4",
+                                                        field.value === service.id ? "opacity-100" : "opacity-0"
+                                                      )}
+                                                    />
+                                                  </CommandItem>
+                                                ))}
+                                              </CommandGroup>
+                                            );
+                                          })}
+                                        </CommandList>
+                                      </Command>
+                                    </PopoverContent>
+                                  </Popover>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            {/* Precio */}
+                            <FormField
+                              control={form.control}
+                              name={`services.${index}.price`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Precio (€)</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      step="0.01"
+                                      placeholder="0.00"
+                                      className="form-input-elegant"
+                                      {...field}
+                                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <div className="flex items-end">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => removeService(index)}
+                                disabled={form.watch('services')?.length <= 1}
+                                className="border-destructive/50 text-destructive hover:bg-destructive/10"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
 
-                  {/* Extras Section */}
+                  {/* Extras */}
                   <FormField
                     control={form.control}
                     name="extras_price"
@@ -372,8 +376,8 @@ const IncomeNew = () => {
                       <FormItem>
                         <FormLabel>Extras (€)</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
+                          <Input
+                            type="number"
                             step="0.01"
                             placeholder="0.00"
                             className="form-input-elegant"
@@ -386,13 +390,14 @@ const IncomeNew = () => {
                     )}
                   />
 
-                  {/* Total Display */}
+                  {/* Total */}
                   <div className="bg-secondary/20 p-4 rounded-lg">
                     <div className="text-lg font-semibold text-foreground">
-                      Total: €{getTotalAmount().toFixed(2)}
+                      Total: {eur.format(getTotalAmount())}
                     </div>
                   </div>
 
+                  {/* Manicurista */}
                   <FormField
                     control={form.control}
                     name="manicurist"
@@ -418,6 +423,7 @@ const IncomeNew = () => {
                     )}
                   />
 
+                  {/* Método de pago */}
                   <FormField
                     control={form.control}
                     name="payment_method"
@@ -452,7 +458,7 @@ const IncomeNew = () => {
                     <Save className="h-4 w-4 mr-2" />
                     {loading ? 'Guardando...' : 'Registrar Ingreso'}
                   </Button>
-                  
+
                   <Button
                     type="button"
                     variant="outline"

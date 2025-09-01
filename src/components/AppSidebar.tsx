@@ -30,7 +30,7 @@ const menuItems = [
   { title: 'Gastos', url: '/expenses', icon: TrendingDown, adminOnly: true },
   { title: 'Reportes', url: '/reports', icon: BarChart3, adminOnly: true },
   { title: 'Manicuristas', url: '/staff', icon: Users, adminOnly: true },
-  { title: 'Servicios', url: '/services', icon: FileText, adminOnly: true },
+  { title: 'Servicios', url: '/services', icon: FileText, adminOnly: false },
   { title: 'Configuración', url: '/settings', icon: Settings, adminOnly: true },
 ];
 
