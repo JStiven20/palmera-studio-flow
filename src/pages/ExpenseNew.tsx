@@ -48,7 +48,7 @@ const ExpenseNew = () => {
     setLoading(true);
     try {
       const { error } = await supabase
-        .from('expense_records' as any)
+        .from('expense_records')
         .insert({
           reason: data.reason,
           description: data.description || null,

@@ -7,90 +7,97 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
+  // Allows to automatically instanciate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.4"
+    PostgrestVersion: "12.2.12 (cd3cf9e)"
   }
   public: {
     Tables: {
       expense_records: {
         Row: {
           amount: number
-          created_at: string
+          created_at: string | null
           date: string
           description: string | null
           id: string
           payment_method: string
           reason: string
-          updated_at: string
-          user_id: string
+          updated_at: string | null
+          user_id: string | null
         }
         Insert: {
           amount: number
-          created_at?: string
-          date: string
+          created_at?: string | null
+          date?: string
           description?: string | null
           id?: string
           payment_method: string
           reason: string
-          updated_at?: string
-          user_id: string
+          updated_at?: string | null
+          user_id?: string | null
         }
         Update: {
           amount?: number
-          created_at?: string
+          created_at?: string | null
           date?: string
           description?: string | null
           id?: string
           payment_method?: string
           reason?: string
-          updated_at?: string
-          user_id?: string
+          updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
       income_records: {
         Row: {
           client_name: string
-          created_at: string
+          created_at: string | null
           date: string
           id: string
-          manicurist: string
+          manicurist: Database["public"]["Enums"]["manicurist"]
+          manicurist_id: string | null
           payment_method: string
           price: number
           service_id: string | null
-          service_type: string | null
-          updated_at: string
-          user_id: string
+          updated_at: string | null
+          user_id: string | null
         }
         Insert: {
           client_name: string
-          created_at?: string
-          date: string
+          created_at?: string | null
+          date?: string
           id?: string
-          manicurist: string
+          manicurist?: Database["public"]["Enums"]["manicurist"]
+          manicurist_id?: string | null
           payment_method: string
           price: number
           service_id?: string | null
-          service_type?: string | null
-          updated_at?: string
-          user_id: string
+          updated_at?: string | null
+          user_id?: string | null
         }
         Update: {
           client_name?: string
-          created_at?: string
+          created_at?: string | null
           date?: string
           id?: string
-          manicurist?: string
+          manicurist?: Database["public"]["Enums"]["manicurist"]
+          manicurist_id?: string | null
           payment_method?: string
           price?: number
           service_id?: string | null
-          service_type?: string | null
-          updated_at?: string
-          user_id?: string
+          updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "income_records_manicurist_id_fkey"
+            columns: ["manicurist_id"]
+            isOneToOne: false
+            referencedRelation: "manicurists"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "income_records_service_id_fkey"
             columns: ["service_id"]
@@ -102,35 +109,26 @@ export type Database = {
       }
       manicurists: {
         Row: {
-          active: boolean | null
-          commission_rate: number | null
           created_at: string
-          email: string | null
           id: string
+          is_active: boolean
           name: string
-          phone: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
-          active?: boolean | null
-          commission_rate?: number | null
           created_at?: string
-          email?: string | null
           id?: string
+          is_active?: boolean
           name: string
-          phone?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
-          active?: boolean | null
-          commission_rate?: number | null
           created_at?: string
-          email?: string | null
           id?: string
+          is_active?: boolean
           name?: string
-          phone?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -138,57 +136,57 @@ export type Database = {
       }
       profiles: {
         Row: {
-          created_at: string
-          display_name: string | null
+          created_at: string | null
+          email: string
           id: string
-          updated_at: string
+          role: string | null
+          updated_at: string | null
           user_id: string
-          user_role: string | null
+          user_role: Database["public"]["Enums"]["user_role"] | null
         }
         Insert: {
-          created_at?: string
-          display_name?: string | null
+          created_at?: string | null
+          email: string
           id?: string
-          updated_at?: string
+          role?: string | null
+          updated_at?: string | null
           user_id: string
-          user_role?: string | null
+          user_role?: Database["public"]["Enums"]["user_role"] | null
         }
         Update: {
-          created_at?: string
-          display_name?: string | null
+          created_at?: string | null
+          email?: string
           id?: string
-          updated_at?: string
+          role?: string | null
+          updated_at?: string | null
           user_id?: string
-          user_role?: string | null
+          user_role?: Database["public"]["Enums"]["user_role"] | null
         }
         Relationships: []
       }
       services: {
         Row: {
           category: string
-          created_at: string
+          created_at: string | null
           default_price: number | null
           id: string
           name: string
-          updated_at: string
           user_id: string | null
         }
         Insert: {
           category: string
-          created_at?: string
+          created_at?: string | null
           default_price?: number | null
           id?: string
           name: string
-          updated_at?: string
           user_id?: string | null
         }
         Update: {
           category?: string
-          created_at?: string
+          created_at?: string | null
           default_price?: number | null
           id?: string
           name?: string
-          updated_at?: string
           user_id?: string | null
         }
         Relationships: []
@@ -198,10 +196,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
     }
     Enums: {
-      [_ in never]: never
+      manicurist: "Tamar" | "Anna" | "Yuli" | "Genesis" | "Invitada"
+      manicurist_type: "Yuli" | "Anna" | "Genesis" | "Tamar" | "Intern"
+      payment_method: "efectivo" | "tarjeta" | "transferencia" | "bizum"
+      payment_method_type: "Efectivo" | "Tarjeta" | "Transferencia" | "Bizum"
+      user_role: "admin" | "employee"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -328,6 +333,12 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      manicurist: ["Tamar", "Anna", "Yuli", "Genesis", "Invitada"],
+      manicurist_type: ["Yuli", "Anna", "Genesis", "Tamar", "Intern"],
+      payment_method: ["efectivo", "tarjeta", "transferencia", "bizum"],
+      payment_method_type: ["Efectivo", "Tarjeta", "Transferencia", "Bizum"],
+      user_role: ["admin", "employee"],
+    },
   },
 } as const

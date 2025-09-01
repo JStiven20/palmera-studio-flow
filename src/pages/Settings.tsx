@@ -43,20 +43,20 @@ const Settings = () => {
     try {
       // Load manicurists
       const { data: manicuristsData } = await supabase
-        .from('manicurists' as any)
+        .from('manicurists')
         .select('*')
         .eq('user_id', user?.id)
         .order('name');
 
       // Load services
       const { data: servicesData } = await supabase
-        .from('services' as any)
+        .from('services')
         .select('*')
         .or(`user_id.eq.${user?.id},user_id.is.null`)
         .order('category, name');
 
-      setManicurists((manicuristsData as any) || []);
-      setServices((servicesData as any) || []);
+      setManicurists(manicuristsData || []);
+      setServices(servicesData || []);
     } catch (error) {
       console.error('Error loading data:', error);
       toast({

@@ -58,13 +58,19 @@ const Income = () => {
   const loadIncomes = async () => {
     try {
       const { data, error } = await supabase
-        .from('income_records' as any)
-        .select('*')
+        .from('income_records')
+        .select(`
+          *,
+          services:service_id (
+            name,
+            category
+          )
+        `)
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setIncomes((data as any) || []);
+      setIncomes(data || []);
     } catch (error) {
       console.error('Error loading incomes:', error);
       toast({
@@ -105,10 +111,9 @@ const Income = () => {
   const deleteIncome = async (id: string) => {
     try {
       const { error } = await supabase
-        .from('income_records' as any)
+        .from('income_records')
         .delete()
-        .eq('id', id)
-        .eq('user_id', user.id);
+        .eq('id', id);
 
       if (error) throw error;
 
@@ -143,7 +148,7 @@ const Income = () => {
 
     try {
       const { error } = await supabase
-        .from('income_records' as any)
+        .from('income_records')
         .update({
           client_name: editForm.client_name,
           price: parseFloat(editForm.price),
