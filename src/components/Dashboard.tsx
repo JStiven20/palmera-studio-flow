@@ -6,8 +6,9 @@ import { TrendingUp, TrendingDown, Users, Calendar, Euro, Target } from 'lucide-
 import { useNavigate } from 'react-router-dom';
 
 interface DashboardStats {
-  todayIncome: number;
-  todayExpenses: number;
+  dailyIncome: number;
+  dailyExpenses: number;
+  dailyBalance: number;
   monthlyIncome: number;
   monthlyExpenses: number;
   totalClients: number;
@@ -16,8 +17,9 @@ interface DashboardStats {
 
 const Dashboard = () => {
   const [stats, setStats] = useState<DashboardStats>({
-    todayIncome: 0,
-    todayExpenses: 0,
+    dailyIncome: 0,
+    dailyExpenses: 0,
+    dailyBalance: 0,
     monthlyIncome: 0,
     monthlyExpenses: 0,
     totalClients: 0,
@@ -56,62 +58,66 @@ const Dashboard = () => {
 
       // Get today's income
       const { data: todayIncomes } = await supabase
-        .from('income_records')
+        .from('income_records' as any)
         .select('price')
         .eq('user_id', user.id)
         .eq('date', today);
 
       // Get today's expenses
       const { data: todayExpenses } = await supabase
-        .from('expense_records')
+        .from('expense_records' as any)
         .select('amount')
         .eq('user_id', user.id)
         .eq('date', today);
 
-      // Get monthly income
-      const { data: monthlyIncomes } = await supabase
-        .from('income_records')
-        .select('price, client_name')
+      // Get this month's income
+      const { data: monthIncomes } = await supabase
+        .from('income_records' as any)
+        .select('price')
         .eq('user_id', user.id)
         .gte('date', firstDayOfMonth);
 
-      // Get monthly expenses
-      const { data: monthlyExpenseData } = await supabase
-        .from('expense_records')
+      // Get this month's expenses
+      const { data: monthExpenses } = await supabase
+        .from('expense_records' as any)
         .select('amount')
         .eq('user_id', user.id)
         .gte('date', firstDayOfMonth);
 
-      // Get manicurists performance
+      // Get unique clients count
+      const { data: clients } = await supabase
+        .from('income_records' as any)
+        .select('client_name')
+        .eq('user_id', user.id);
+
+      const todayIncome = todayIncomes?.reduce((sum: number, record: any) => sum + (record.price || 0), 0) || 0;
+      const todayExpensesTotal = todayExpenses?.reduce((sum: number, record: any) => sum + (record.amount || 0), 0) || 0;
+      const monthIncome = monthIncomes?.reduce((sum: number, record: any) => sum + (record.price || 0), 0) || 0;
+      const monthExpensesTotal = monthExpenses?.reduce((sum: number, record: any) => sum + (record.amount || 0), 0) || 0;
+
+      const uniqueClients = new Set(clients?.map((record: any) => record.client_name)).size;
+
+      // Get top manicurist
       const { data: manicurists } = await supabase
-        .from('income_records')
+        .from('income_records' as any)
         .select('manicurist, price')
         .eq('user_id', user.id)
         .gte('date', firstDayOfMonth);
 
-      const todayIncomeTotal = todayIncomes?.reduce((sum, record) => sum + (record.price || 0), 0) || 0;
-      const todayExpenseTotal = todayExpenses?.reduce((sum, record) => sum + (record.amount || 0), 0) || 0;
-      const monthlyIncomeTotal = monthlyIncomes?.reduce((sum, record) => sum + (record.price || 0), 0) || 0;
-      const monthlyExpenseTotal = monthlyExpenseData?.reduce((sum, record) => sum + (record.amount || 0), 0) || 0;
-
-      // Count unique clients this month
-      const uniqueClients = new Set(monthlyIncomes?.map(record => record.client_name) || []).size;
-
-      // Find top manicurist
-      const manicuristStats: Record<string, number> = {};
-      manicurists?.forEach(record => {
-        const name = record.manicurist || 'Sin especificar';
-        manicuristStats[name] = (manicuristStats[name] || 0) + (record.price || 0);
-      });
+      const manicuristStats = manicurists?.reduce((acc: Record<string, number>, record: any) => {
+        acc[record.manicurist] = (acc[record.manicurist] || 0) + (record.price || 0);
+        return acc;
+      }, {} as Record<string, number>) || {};
 
       const topManicurist = Object.entries(manicuristStats)
         .sort(([,a], [,b]) => b - a)[0]?.[0] || 'Sin datos';
 
       setStats({
-        todayIncome: todayIncomeTotal,
-        todayExpenses: todayExpenseTotal,
-        monthlyIncome: monthlyIncomeTotal,
-        monthlyExpenses: monthlyExpenseTotal,
+        dailyIncome: todayIncome,
+        dailyExpenses: todayExpensesTotal,
+        dailyBalance: todayIncome - todayExpensesTotal,
+        monthlyIncome: monthIncome,
+        monthlyExpenses: monthExpensesTotal,
         totalClients: uniqueClients,
         topManicurist
       });
@@ -176,7 +182,7 @@ const Dashboard = () => {
             <Euro className="h-4 w-4 text-primary flex-shrink-0" />
           </CardHeader>
           <CardContent className="px-4 sm:px-6">
-            <div className="text-xl sm:text-2xl font-bold text-primary">€{stats.todayIncome.toFixed(2)}</div>
+            <div className="text-xl sm:text-2xl font-bold text-primary">€{stats.dailyIncome.toFixed(2)}</div>
             <p className="text-xs text-muted-foreground">Servicios realizados hoy</p>
           </CardContent>
         </Card>
@@ -187,7 +193,7 @@ const Dashboard = () => {
             <TrendingDown className="h-4 w-4 text-destructive flex-shrink-0" />
           </CardHeader>
           <CardContent className="px-4 sm:px-6">
-            <div className="text-xl sm:text-2xl font-bold text-destructive">€{stats.todayExpenses.toFixed(2)}</div>
+            <div className="text-xl sm:text-2xl font-bold text-destructive">€{stats.dailyExpenses.toFixed(2)}</div>
             <p className="text-xs text-muted-foreground">Gastos registrados hoy</p>
           </CardContent>
         </Card>
@@ -198,8 +204,8 @@ const Dashboard = () => {
             <Target className="h-4 w-4 text-accent flex-shrink-0" />
           </CardHeader>
           <CardContent className="px-4 sm:px-6">
-            <div className={`text-xl sm:text-2xl font-bold ${(stats.todayIncome - stats.todayExpenses) >= 0 ? 'text-primary' : 'text-destructive'}`}>
-              €{(stats.todayIncome - stats.todayExpenses).toFixed(2)}
+            <div className={`text-xl sm:text-2xl font-bold ${stats.dailyBalance >= 0 ? 'text-primary' : 'text-destructive'}`}>
+              €{stats.dailyBalance.toFixed(2)}
             </div>
             <p className="text-xs text-muted-foreground">Beneficio del día</p>
           </CardContent>
