@@ -24,12 +24,12 @@ const Services = () => {
   const loadServices = async () => {
     try {
       const { data, error } = await supabase
-        .from('services')
+        .from('services' as any)
         .select('*')
         .order('category', { ascending: true });
 
       if (error) throw error;
-      setServices(data || []);
+      setServices((data as any) || []);
     } catch (error) {
       console.error('Error loading services:', error);
     } finally {

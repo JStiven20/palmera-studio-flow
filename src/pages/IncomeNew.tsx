@@ -71,12 +71,12 @@ const IncomeNew = () => {
   const loadServices = async () => {
     try {
       const { data, error } = await supabase
-        .from('services')
+        .from('services' as any)
         .select('*')
         .order('category', { ascending: true });
 
       if (error) throw error;
-      setServices(data || []);
+      setServices((data as any) || []);
     } catch (error) {
       console.error('Error loading services:', error);
       toast({
@@ -133,7 +133,7 @@ const IncomeNew = () => {
       }
 
       const { error } = await supabase
-        .from('income_records')
+        .from('income_records' as any)
         .insert(records);
 
       if (error) throw error;

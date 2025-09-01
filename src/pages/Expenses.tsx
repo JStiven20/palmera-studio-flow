@@ -51,13 +51,13 @@ const Expenses = () => {
   const loadExpenses = async () => {
     try {
       const { data, error } = await supabase
-        .from('expense_records')
+        .from('expense_records' as any)
         .select('*')
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setExpenses(data || []);
+      setExpenses((data as any) || []);
     } catch (error) {
       console.error('Error loading expenses:', error);
       toast({
@@ -73,7 +73,7 @@ const Expenses = () => {
   const deleteExpense = async (id: string) => {
     try {
       const { error } = await supabase
-        .from('expense_records')
+        .from('expense_records' as any)
         .delete()
         .eq('id', id);
 
@@ -110,7 +110,7 @@ const Expenses = () => {
 
     try {
       const { error } = await supabase
-        .from('expense_records')
+        .from('expense_records' as any)
         .update({
           reason: editForm.reason,
           description: editForm.description || null,

@@ -59,6 +59,7 @@ export type Database = {
           manicurist: string
           payment_method: string
           price: number
+          service_id: string | null
           service_type: string | null
           updated_at: string
           user_id: string
@@ -71,6 +72,7 @@ export type Database = {
           manicurist: string
           payment_method: string
           price: number
+          service_id?: string | null
           service_type?: string | null
           updated_at?: string
           user_id: string
@@ -83,7 +85,52 @@ export type Database = {
           manicurist?: string
           payment_method?: string
           price?: number
+          service_id?: string | null
           service_type?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "income_records_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      manicurists: {
+        Row: {
+          active: boolean | null
+          commission_rate: number | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean | null
+          commission_rate?: number | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean | null
+          commission_rate?: number | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -113,6 +160,36 @@ export type Database = {
           updated_at?: string
           user_id?: string
           user_role?: string | null
+        }
+        Relationships: []
+      }
+      services: {
+        Row: {
+          category: string
+          created_at: string
+          default_price: number | null
+          id: string
+          name: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          default_price?: number | null
+          id?: string
+          name: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          default_price?: number | null
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
