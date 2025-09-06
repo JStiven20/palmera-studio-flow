@@ -2,44 +2,47 @@ import { useState, useEffect } from 'react';
 import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
 
-type UserRole = 'admin' | 'employee' | null;
-
 export const useUserRole = () => {
   const { user } = useAuth();
-  const [userRole, setUserRole] = useState<UserRole>(null);
+  const [userProfile, setUserProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) {
-      setUserRole(null);
+      setUserProfile(null);
       setLoading(false);
       return;
     }
 
-    const fetchUserRole = async () => {
+    const fetchUserProfile = async () => {
       try {
         const { data, error } = await supabase
-          .from('profiles')
-          .select('user_role')
+          .from('user_profiles')
+          .select('*')
           .eq('user_id', user.id)
           .single();
 
         if (error) {
-          console.error('Error fetching user role:', error);
-          setUserRole(null);
+          console.error('Error fetching user profile:', error);
+          setUserProfile(null);
         } else {
-          setUserRole(data?.user_role || null);
+          setUserProfile(data);
         }
       } catch (error) {
-        console.error('Error fetching user role:', error);
-        setUserRole(null);
+        console.error('Error fetching user profile:', error);
+        setUserProfile(null);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUserRole();
+    fetchUserProfile();
   }, [user]);
 
-  return { userRole, loading, isAdmin: userRole === 'admin', isEmployee: userRole === 'employee' };
+  return { 
+    userProfile, 
+    loading, 
+    isActive: userProfile?.is_active || false,
+    manicuristName: userProfile?.manicurist_name || null
+  };
 };
