@@ -59,13 +59,7 @@ const Income = () => {
     try {
       const { data, error } = await supabase
         .from('income_records')
-        .select(`
-          *,
-          services:service_id (
-            name,
-            category
-          )
-        `)
+        .select('*')
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
 

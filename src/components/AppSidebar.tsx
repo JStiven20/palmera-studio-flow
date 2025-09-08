@@ -23,15 +23,9 @@ import {
 import { useUserRole } from '@/hooks/useUserRole';
 
 const menuItems = [
-  { title: 'Dashboard', url: '/', icon: Home, adminOnly: true },
-  { title: 'Registrar Ingreso', url: '/income/new', icon: PlusCircle, adminOnly: false },
-  { title: 'Registrar Gasto', url: '/expense/new', icon: TrendingDown, adminOnly: false },
-  { title: 'Ingresos', url: '/income', icon: TrendingUp, adminOnly: true },
-  { title: 'Gastos', url: '/expenses', icon: TrendingDown, adminOnly: true },
-  { title: 'Reportes', url: '/reports', icon: BarChart3, adminOnly: true },
-  { title: 'Manicuristas', url: '/staff', icon: Users, adminOnly: true },
-  { title: 'Servicios', url: '/services', icon: FileText, adminOnly: false },
-  { title: 'Configuración', url: '/settings', icon: Settings, adminOnly: true },
+  { title: 'Mis Ingresos', url: '/income/new', icon: PlusCircle, adminOnly: false },
+  { title: 'Ver Reportes', url: '/reports', icon: BarChart3, adminOnly: false },
+  { title: 'Configuración', url: '/settings', icon: Settings, adminOnly: false },
 ];
 
 export function AppSidebar() {

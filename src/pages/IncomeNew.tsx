@@ -66,23 +66,13 @@ const IncomeNew = () => {
   }, []);
 
   const loadServices = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('services')
-        .select('*')
-        .order('category', { ascending: true })
-        .order('name', { ascending: true });
-
-      if (error) throw error;
-      setServices(data || []);
-    } catch (error) {
-      console.error('Error loading services:', error);
-      toast({
-        title: 'Error',
-        description: 'No se pudieron cargar los servicios',
-        variant: 'destructive',
-      });
-    }
+    // For now, we'll use a static list of services since the services table doesn't exist
+    setServices([
+      { id: '1', name: 'Manicura Básica', category: 'Manicura', default_price: 15 },
+      { id: '2', name: 'Manicura Semipermanente', category: 'Manicura', default_price: 25 },
+      { id: '3', name: 'Pedicura', category: 'Pedicura', default_price: 20 },
+      { id: '4', name: 'Diseño de Uñas', category: 'Extras', default_price: 30 },
+    ]);
   };
 
   const groupByCategory = (items: Service[]) =>

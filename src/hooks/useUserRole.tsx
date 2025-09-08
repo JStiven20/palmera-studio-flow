@@ -43,7 +43,7 @@ export const useUserRole = () => {
     userProfile, 
     loading, 
     isActive: userProfile?.is_active || false,
-    isAdmin: userProfile?.is_active || false, // All active users are admins in this system
+    isAdmin: false, // All users are manicurists, not admins
     manicuristName: userProfile?.manicurist_name || null
   };
 };

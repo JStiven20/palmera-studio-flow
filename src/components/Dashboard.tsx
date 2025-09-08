@@ -29,20 +29,14 @@ const Dashboard = () => {
   useEffect(() => {
     loadDashboardStats();
     
-    // Set up real-time updates
+    // Set up real-time updates only for income
     const incomeChannel = supabase
       .channel('income-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'income_records' }, loadDashboardStats)
       .subscribe();
 
-    const expenseChannel = supabase
-      .channel('expense-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'expense_records' }, loadDashboardStats)
-      .subscribe();
-
     return () => {
       supabase.removeChannel(incomeChannel);
-      supabase.removeChannel(expenseChannel);
     };
   }, []);
 
@@ -54,17 +48,10 @@ const Dashboard = () => {
       const today = new Date().toISOString().split('T')[0];
       const firstDayOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
 
-      // Get today's income
+      // Get today's income only
       const { data: todayIncomes } = await supabase
         .from('income_records')
         .select('price')
-        .eq('user_id', user.id)
-        .eq('date', today);
-
-      // Get today's expenses
-      const { data: todayExpenses } = await supabase
-        .from('expense_records')
-        .select('amount')
         .eq('user_id', user.id)
         .eq('date', today);
 
@@ -72,13 +59,6 @@ const Dashboard = () => {
       const { data: monthlyIncomes } = await supabase
         .from('income_records')
         .select('price, client_name')
-        .eq('user_id', user.id)
-        .gte('date', firstDayOfMonth);
-
-      // Get monthly expenses
-      const { data: monthlyExpenseData } = await supabase
-        .from('expense_records')
-        .select('amount')
         .eq('user_id', user.id)
         .gte('date', firstDayOfMonth);
 
@@ -90,9 +70,7 @@ const Dashboard = () => {
         .gte('date', firstDayOfMonth);
 
       const todayIncomeTotal = todayIncomes?.reduce((sum, record) => sum + (record.price || 0), 0) || 0;
-      const todayExpenseTotal = todayExpenses?.reduce((sum, record) => sum + (record.amount || 0), 0) || 0;
       const monthlyIncomeTotal = monthlyIncomes?.reduce((sum, record) => sum + (record.price || 0), 0) || 0;
-      const monthlyExpenseTotal = monthlyExpenseData?.reduce((sum, record) => sum + (record.amount || 0), 0) || 0;
 
       // Count unique clients this month
       const uniqueClients = new Set(monthlyIncomes?.map(record => record.client_name) || []).size;
@@ -109,9 +87,9 @@ const Dashboard = () => {
 
       setStats({
         todayIncome: todayIncomeTotal,
-        todayExpenses: todayExpenseTotal,
+        todayExpenses: 0, // No expenses for manicurists
         monthlyIncome: monthlyIncomeTotal,
-        monthlyExpenses: monthlyExpenseTotal,
+        monthlyExpenses: 0, // No expenses for manicurists
         totalClients: uniqueClients,
         topManicurist
       });
@@ -129,13 +107,6 @@ const Dashboard = () => {
       icon: TrendingUp,
       action: () => navigate('/income/new'),
       className: 'gradient-primary text-primary-foreground'
-    },
-    {
-      title: 'Registrar Gasto',
-      description: 'Nuevo gasto del negocio',
-      icon: TrendingDown,
-      action: () => navigate('/expense/new'),
-      className: 'bg-secondary text-secondary-foreground'
     },
     {
       title: 'Ver Reportes',
@@ -183,47 +154,12 @@ const Dashboard = () => {
 
         <Card className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm transition-all hover:shadow-glow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 sm:px-6">
-            <CardTitle className="text-xs sm:text-sm font-medium text-card-foreground">Gastos Hoy</CardTitle>
-            <TrendingDown className="h-4 w-4 text-destructive flex-shrink-0" />
-          </CardHeader>
-          <CardContent className="px-4 sm:px-6">
-            <div className="text-xl sm:text-2xl font-bold text-destructive">€{stats.todayExpenses.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">Gastos registrados hoy</p>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm transition-all hover:shadow-glow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 sm:px-6">
-            <CardTitle className="text-xs sm:text-sm font-medium text-card-foreground">Balance Hoy</CardTitle>
-            <Target className="h-4 w-4 text-accent flex-shrink-0" />
-          </CardHeader>
-          <CardContent className="px-4 sm:px-6">
-            <div className={`text-xl sm:text-2xl font-bold ${(stats.todayIncome - stats.todayExpenses) >= 0 ? 'text-primary' : 'text-destructive'}`}>
-              €{(stats.todayIncome - stats.todayExpenses).toFixed(2)}
-            </div>
-            <p className="text-xs text-muted-foreground">Beneficio del día</p>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm transition-all hover:shadow-glow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 sm:px-6">
             <CardTitle className="text-xs sm:text-sm font-medium text-card-foreground">Ingresos del Mes</CardTitle>
             <TrendingUp className="h-4 w-4 text-primary flex-shrink-0" />
           </CardHeader>
           <CardContent className="px-4 sm:px-6">
             <div className="text-xl sm:text-2xl font-bold text-primary">€{stats.monthlyIncome.toFixed(2)}</div>
             <p className="text-xs text-muted-foreground">Total facturado este mes</p>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm transition-all hover:shadow-glow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 sm:px-6">
-            <CardTitle className="text-xs sm:text-sm font-medium text-card-foreground">Gastos del Mes</CardTitle>
-            <TrendingDown className="h-4 w-4 text-destructive flex-shrink-0" />
-          </CardHeader>
-          <CardContent className="px-4 sm:px-6">
-            <div className="text-xl sm:text-2xl font-bold text-destructive">€{stats.monthlyExpenses.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">Total gastado este mes</p>
           </CardContent>
         </Card>
 
