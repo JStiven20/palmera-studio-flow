@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { 
   Home, 
   TrendingUp, 
@@ -7,7 +7,9 @@ import {
   Users, 
   Settings,
   PlusCircle,
-  FileText
+  FileText,
+  Crown,
+  Euro
 } from 'lucide-react';
 import {
   Sidebar,
@@ -23,23 +25,24 @@ import {
 import { useUserRole } from '@/hooks/useUserRole';
 
 const menuItems = [
-  { title: 'Mis Ingresos', url: '/income/new', icon: PlusCircle, adminOnly: false },
-  { title: 'Ver Reportes', url: '/reports', icon: BarChart3, adminOnly: false },
+  { title: 'Dashboard', url: '/', icon: Home, adminOnly: false },
+  { title: 'Admin Panel', url: '/admin', icon: Crown, adminOnly: true },
+  { title: 'Nuevo Ingreso', url: '/income/new', icon: PlusCircle, adminOnly: false },
+  { title: 'Mis Ingresos', url: '/income', icon: Euro, adminOnly: false },
+  { title: 'Mis Gastos', url: '/expenses', icon: TrendingDown, adminOnly: false },
+  { title: 'Reportes', url: '/reports', icon: BarChart3, adminOnly: false },
+  { title: 'Servicios', url: '/services', icon: Users, adminOnly: false },
   { title: 'Configuración', url: '/settings', icon: Settings, adminOnly: false },
 ];
 
 export function AppSidebar() {
   const { state } = useSidebar();
-  const location = useLocation();
-  const currentPath = location.pathname;
   const collapsed = state === 'collapsed';
   const { isAdmin, loading } = useUserRole();
 
-  const isActive = (path: string) => currentPath === path;
-  
-  const getNavClassName = (path: string) => {
+  const getNavClassName = (path: string, isCurrentPath: boolean) => {
     const baseClass = "w-full justify-start transition-elegant";
-    return isActive(path) 
+    return isCurrentPath 
       ? `${baseClass} bg-primary text-primary-foreground shadow-sm` 
       : `${baseClass} hover:bg-accent/10 hover:text-accent-foreground`;
   };
@@ -63,7 +66,7 @@ export function AppSidebar() {
                       <SidebarMenuButton asChild>
                         <NavLink 
                           to={item.url} 
-                          className={getNavClassName(item.url)}
+                          className={({ isActive }) => getNavClassName(item.url, isActive)}
                           title={collapsed ? item.title : undefined}
                         >
                           <item.icon className={`h-5 w-5 ${collapsed ? 'mx-auto' : 'mr-3'} flex-shrink-0`} />
