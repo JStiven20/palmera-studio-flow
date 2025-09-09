@@ -24,7 +24,7 @@ interface IncomeRecord {
   payment_method: string;
   date: string;
   created_at: string;
-  services?: { name: string; category: string };
+  service_type?: string;
 }
 
 const Income = () => {
@@ -281,13 +281,12 @@ const Income = () => {
                           </div>
                           <div className="sm:hidden mt-1">
                             <p className="text-sm font-medium text-primary">€{income.price.toFixed(2)}</p>
-                            <p className="text-xs text-muted-foreground">{income.services?.name || 'Sin servicio'}</p>
+                            <p className="text-xs text-muted-foreground">{income.service_type || 'Sin servicio'}</p>
                           </div>
                         </TableCell>
                         <TableCell className="hidden sm:table-cell">
                           <div>
-                            <p className="font-medium truncate">{income.services?.name || 'Sin servicio'}</p>
-                            <p className="text-sm text-muted-foreground truncate">{income.services?.category}</p>
+                            <p className="font-medium truncate">{income.service_type || 'Sin servicio'}</p>
                           </div>
                         </TableCell>
                         <TableCell className="font-semibold text-primary hidden sm:table-cell">€{income.price.toFixed(2)}</TableCell>
