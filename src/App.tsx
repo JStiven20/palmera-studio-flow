@@ -10,6 +10,11 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import IncomeNew from "./pages/IncomeNew";
 import Income from "./pages/Income";
+import Expenses from "./pages/Expenses";
+import ExpenseNew from "./pages/ExpenseNew";
+import Reports from "./pages/Reports";
+import Services from "./pages/Services";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +31,11 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/income/new" element={<ProtectedRoute><IncomeNew /></ProtectedRoute>} />
             <Route path="/income" element={<ProtectedRoute><Income /></ProtectedRoute>} />
+            <Route path="/expenses/new" element={<ProtectedRoute><ExpenseNew /></ProtectedRoute>} />
+            <Route path="/expenses" element={<ProtectedRoute><Expenses /></ProtectedRoute>} />
+            <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+            <Route path="/services" element={<ProtectedRoute><Services /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
