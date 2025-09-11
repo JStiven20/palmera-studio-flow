@@ -22,14 +22,24 @@ const Services = () => {
   }, []);
 
   const loadServices = async () => {
-    // Static services list since services table doesn't exist yet
-    setServices([
-      { id: '1', name: 'Manicura Básica', category: 'Manicura', default_price: 15 },
-      { id: '2', name: 'Manicura Semipermanente', category: 'Manicura', default_price: 25 },
-      { id: '3', name: 'Pedicura', category: 'Pedicura', default_price: 20 },
-      { id: '4', name: 'Diseño de Uñas', category: 'Extras', default_price: 30 },
-    ]);
-    setLoading(false);
+    try {
+      const { data, error } = await supabase
+        .from('services')
+        .select('*')
+        .order('category', { ascending: true })
+        .order('name', { ascending: true });
+
+      if (error) {
+        console.error('Error loading services:', error);
+        return;
+      }
+
+      setServices(data || []);
+    } catch (error) {
+      console.error('Error loading services:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getCategoryBadge = (category: string) => {
