@@ -151,6 +151,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_first_user_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       get_current_manicurist_name: {
         Args: Record<PropertyKey, never>
         Returns: string
