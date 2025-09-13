@@ -98,6 +98,7 @@ const IncomeNew = () => {
             payment_method: data.payment_method,
             date: data.date,
             user_id: user.id,
+            created_by_manicurist: true,
           });
         }
       }
@@ -111,6 +112,7 @@ const IncomeNew = () => {
           payment_method: data.payment_method,
           date: data.date,
           user_id: user.id,
+          created_by_manicurist: true,
         });
       }
 

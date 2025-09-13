@@ -39,6 +39,10 @@ interface IncomeRecord {
   date: string;
   created_at: string;
   service_type?: string;
+  created_by_manicurist?: boolean;
+  modified_by_manicurist?: boolean;
+  original_price?: number;
+  modification_notes?: string;
 }
 
 const EmployeeDashboard = () => {
@@ -78,7 +82,7 @@ const EmployeeDashboard = () => {
       const today = new Date().toISOString().split('T')[0];
       const { data, error } = await supabase
         .from('income_records')
-        .select('*')
+        .select('id, client_name, price, manicurist, payment_method, date, created_at, service_type, created_by_manicurist, modified_by_manicurist, original_price, modification_notes')
         .eq('manicurist', manicuristName)
         .eq('date', today)
         .order('created_at', { ascending: false });
@@ -99,7 +103,7 @@ const EmployeeDashboard = () => {
       const dateStr = date.toISOString().split('T')[0];
       const { data, error } = await supabase
         .from('income_records')
-        .select('*')
+        .select('id, client_name, price, manicurist, payment_method, date, created_at, service_type, created_by_manicurist, modified_by_manicurist, original_price, modification_notes')
         .eq('manicurist', manicuristName)
         .eq('date', dateStr)
         .order('created_at', { ascending: false });
@@ -308,25 +312,48 @@ const EmployeeDashboard = () => {
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>Cliente</TableHead>
-                      <TableHead>Precio</TableHead>
-                      <TableHead>Pago</TableHead>
-                      <TableHead>Hora</TableHead>
-                      <TableHead className="text-right">Acciones</TableHead>
-                    </TableRow>
+                     <TableRow>
+                       <TableHead>Cliente</TableHead>
+                       <TableHead>Precio</TableHead>
+                       <TableHead>Pago</TableHead>
+                       <TableHead>Estado</TableHead>
+                       <TableHead>Hora</TableHead>
+                       <TableHead className="text-right">Acciones</TableHead>
+                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {todayIncomes.map((income) => (
-                      <TableRow key={income.id}>
-                        <TableCell className="font-medium">{income.client_name}</TableCell>
-                        <TableCell className="font-semibold text-primary">€{income.price.toFixed(2)}</TableCell>
-                        <TableCell>
-                          <Badge className={getPaymentMethodBadge(income.payment_method)}>
-                            {income.payment_method}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{format(new Date(income.created_at), 'HH:mm')}</TableCell>
+                     {todayIncomes.map((income) => (
+                       <TableRow key={income.id}>
+                         <TableCell className="font-medium">{income.client_name}</TableCell>
+                         <TableCell className="font-semibold text-primary">
+                           €{income.price.toFixed(2)}
+                           {income.modified_by_manicurist && income.original_price && (
+                             <div className="text-xs text-muted-foreground">
+                               Original: €{income.original_price.toFixed(2)}
+                             </div>
+                           )}
+                         </TableCell>
+                         <TableCell>
+                           <Badge className={getPaymentMethodBadge(income.payment_method)}>
+                             {income.payment_method}
+                           </Badge>
+                         </TableCell>
+                         <TableCell>
+                           {income.created_by_manicurist ? (
+                             <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                               Creado por ti
+                             </Badge>
+                           ) : income.modified_by_manicurist ? (
+                             <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                               Modificado por ti
+                             </Badge>
+                           ) : (
+                             <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                               Pre-cargado
+                             </Badge>
+                           )}
+                         </TableCell>
+                         <TableCell>{format(new Date(income.created_at), 'HH:mm')}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex gap-1 justify-end">
                             <Dialog open={editingIncome?.id === income.id} onOpenChange={(open) => !open && setEditingIncome(null)}>
