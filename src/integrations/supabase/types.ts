@@ -54,9 +54,13 @@ export type Database = {
         Row: {
           client_name: string
           created_at: string
+          created_by_manicurist: boolean | null
           date: string
           id: string
           manicurist: string
+          modification_notes: string | null
+          modified_by_manicurist: boolean | null
+          original_price: number | null
           payment_method: string
           price: number
           service_id: string | null
@@ -67,9 +71,13 @@ export type Database = {
         Insert: {
           client_name: string
           created_at?: string
+          created_by_manicurist?: boolean | null
           date: string
           id?: string
           manicurist: string
+          modification_notes?: string | null
+          modified_by_manicurist?: boolean | null
+          original_price?: number | null
           payment_method: string
           price: number
           service_id?: string | null
@@ -80,9 +88,13 @@ export type Database = {
         Update: {
           client_name?: string
           created_at?: string
+          created_by_manicurist?: boolean | null
           date?: string
           id?: string
           manicurist?: string
+          modification_notes?: string | null
+          modified_by_manicurist?: boolean | null
+          original_price?: number | null
           payment_method?: string
           price?: number
           service_id?: string | null
