@@ -16,6 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Euro, Save, Plus, Trash2, Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useUserRole } from '@/hooks/useUserRole';
 
 const incomeSchema = z.object({
   client_name: z.string().min(1, 'El nombre del cliente es requerido'),
@@ -45,7 +46,9 @@ const IncomeNew = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(false);
   const [openComboboxes, setOpenComboboxes] = useState<{[key: number]: boolean}>({});
+  const [manicuristMap, setManicuristMap] = useState<Record<string, string>>({});
   const { user } = useAuth();
+  const { isAdmin } = useUserRole();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -64,6 +67,26 @@ const IncomeNew = () => {
   useEffect(() => {
     loadServices();
   }, []);
+
+  // Cargar mapa manicurista -> user_id para admins
+  useEffect(() => {
+    const loadManicurists = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .select('user_id, manicurist_name');
+        if (error) throw error;
+        const map: Record<string, string> = {};
+        data?.forEach((p: any) => {
+          if (p.manicurist_name && p.user_id) map[p.manicurist_name] = p.user_id;
+        });
+        setManicuristMap(map);
+      } catch (e) {
+        // silently ignore
+      }
+    };
+    loadManicurists();
+  }, [isAdmin]);
 
   const loadServices = async () => {
     // For now, we'll use a static list of services since the services table doesn't exist
@@ -87,6 +110,8 @@ const IncomeNew = () => {
     setLoading(true);
     try {
       const records: any[] = [];
+      const targetUserId = manicuristMap[data.manicurist] ?? user.id;
+      const createdByManicurist = targetUserId === user.id;
 
       for (const service of data.services) {
         if (service.service_id && service.price > 0) {
@@ -98,8 +123,8 @@ const IncomeNew = () => {
             manicurist: data.manicurist,
             payment_method: data.payment_method,
             date: data.date,
-            user_id: user.id,
-            created_by_manicurist: true,
+            user_id: targetUserId,
+            created_by_manicurist: createdByManicurist,
           });
         }
       }
@@ -112,8 +137,8 @@ const IncomeNew = () => {
           manicurist: data.manicurist,
           payment_method: data.payment_method,
           date: data.date,
-          user_id: user.id,
-          created_by_manicurist: true,
+          user_id: targetUserId,
+          created_by_manicurist: createdByManicurist,
         });
       }
 
@@ -146,7 +171,6 @@ const IncomeNew = () => {
       setLoading(false);
     }
   };
-
   const addService = () => {
     const currentServices = form.getValues('services');
     form.setValue('services', [...currentServices, { service_id: '', price: 0 }]);
