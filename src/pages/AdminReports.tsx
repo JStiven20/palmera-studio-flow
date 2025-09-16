@@ -249,67 +249,153 @@ const AdminReports = () => {
           </Card>
         </div>
 
-        {/* Manicurists Report Table */}
-        <Card className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-primary" />
-              Reporte Detallado por Manicurista
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {reports.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                No hay datos para el período seleccionado
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Manicurista</TableHead>
-                    <TableHead className="text-right">Ingresos</TableHead>
-                    <TableHead className="text-right">Servicios</TableHead>
-                    <TableHead className="text-right">Promedio por Servicio</TableHead>
-                    <TableHead className="text-right">% del Total</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {reports.map((report, index) => (
-                    <TableRow key={report.user_id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <div className={`w-3 h-3 rounded-full ${index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-gray-400' : index === 2 ? 'bg-orange-400' : 'bg-muted'}`}></div>
-                          <span className="font-medium">{report.manicurist_name}</span>
+        {/* Manicurists Report Cards */}
+        <div className="space-y-6">
+          <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
+            <Users className="h-6 w-6 text-primary" />
+            Facturación por Manicurista
+          </h2>
+          
+          {reports.length === 0 ? (
+            <Card className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm">
+              <CardContent className="text-center py-12">
+                <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-lg text-muted-foreground">No hay datos para el período seleccionado</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              {/* Top 3 Performers with Special Design */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                {reports.slice(0, 3).map((report, index) => {
+                  const rankColors = [
+                    'from-yellow-400 to-yellow-600', // Gold
+                    'from-gray-300 to-gray-500',     // Silver  
+                    'from-orange-400 to-orange-600'  // Bronze
+                  ];
+                  const rankIcons = ['🥇', '🥈', '🥉'];
+                  const percentage = ((report.total_income / totalIncome) * 100);
+                  
+                  return (
+                    <Card key={report.user_id} className="shadow-elegant border-border/50 bg-gradient-to-br from-card/90 to-card/70 backdrop-blur-sm relative overflow-hidden">
+                      <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${rankColors[index]}`}></div>
+                      <CardHeader className="pb-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-2xl">{rankIcons[index]}</span>
+                            <div>
+                              <h3 className="font-bold text-lg text-foreground">{report.manicurist_name}</h3>
+                              <p className="text-sm text-muted-foreground">Posición #{index + 1}</p>
+                            </div>
+                          </div>
                         </div>
-                      </TableCell>
-                      <TableCell className="text-right font-semibold text-green-600">
-                        €{report.total_income.toFixed(2)}
-                      </TableCell>
-                      <TableCell className="text-right">{report.services_count}</TableCell>
-                      <TableCell className="text-right">
-                        €{(report.total_income / report.services_count).toFixed(2)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {((report.total_income / totalIncome) * 100).toFixed(1)}%
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  <TableRow className="border-t-2 border-primary/20 bg-muted/30">
-                    <TableCell className="font-bold">TOTAL</TableCell>
-                    <TableCell className="text-right font-bold text-green-600">
-                      €{totalIncome.toFixed(2)}
-                    </TableCell>
-                    <TableCell className="text-right font-bold">{totalServices}</TableCell>
-                    <TableCell className="text-right font-bold">
-                      €{totalServices > 0 ? (totalIncome / totalServices).toFixed(2) : '0.00'}
-                    </TableCell>
-                    <TableCell className="text-right font-bold">100%</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="text-center">
+                          <div className="text-3xl font-bold text-primary mb-1">€{report.total_income.toFixed(2)}</div>
+                          <div className="text-sm text-muted-foreground">{percentage.toFixed(1)}% del total</div>
+                        </div>
+                        
+                        {/* Progress Bar */}
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span>Progreso</span>
+                            <span>{percentage.toFixed(1)}%</span>
+                          </div>
+                          <div className="w-full bg-muted rounded-full h-2">
+                            <div 
+                              className={`h-2 rounded-full bg-gradient-to-r ${rankColors[index]} transition-all duration-1000`}
+                              style={{ width: `${Math.min(percentage, 100)}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border/50">
+                          <div className="text-center">
+                            <div className="text-xl font-semibold text-foreground">{report.services_count}</div>
+                            <div className="text-xs text-muted-foreground">Servicios</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-xl font-semibold text-foreground">€{(report.total_income / report.services_count).toFixed(0)}</div>
+                            <div className="text-xs text-muted-foreground">Promedio</div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+
+              {/* Rest of Manicurists */}
+              {reports.length > 3 && (
+                <Card className="shadow-elegant border-border/50 bg-card/70 backdrop-blur-sm">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-primary" />
+                      Otras Manicuristas
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      {reports.slice(3).map((report, index) => {
+                        const percentage = ((report.total_income / totalIncome) * 100);
+                        return (
+                          <div key={report.user_id} className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border/30">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                                <span className="text-sm font-semibold text-primary">#{index + 4}</span>
+                              </div>
+                              <div>
+                                <h4 className="font-semibold text-foreground">{report.manicurist_name}</h4>
+                                <p className="text-sm text-muted-foreground">{report.services_count} servicios</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-lg font-bold text-primary">€{report.total_income.toFixed(2)}</div>
+                              <div className="text-sm text-muted-foreground">{percentage.toFixed(1)}%</div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Summary Card */}
+              <Card className="shadow-elegant border-primary/20 bg-gradient-to-r from-primary/5 to-primary/10 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-primary">
+                    <Euro className="h-5 w-5" />
+                    Resumen Total
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-primary">{reports.length}</div>
+                      <div className="text-sm text-muted-foreground">Manicuristas Activas</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-green-600">€{totalIncome.toFixed(2)}</div>
+                      <div className="text-sm text-muted-foreground">Ingresos Totales</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-blue-600">{totalServices}</div>
+                      <div className="text-sm text-muted-foreground">Servicios Totales</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-purple-600">
+                        €{totalServices > 0 ? (totalIncome / totalServices).toFixed(0) : '0'}
+                      </div>
+                      <div className="text-sm text-muted-foreground">Promedio por Servicio</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
+        </div>
       </div>
     </Layout>
   );
