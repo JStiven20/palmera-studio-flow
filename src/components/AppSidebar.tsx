@@ -27,6 +27,7 @@ import { useUserRole } from '@/hooks/useUserRole';
 const menuItems = [
   { title: 'Dashboard', url: '/', icon: Home, adminOnly: false },
   { title: 'Admin Panel', url: '/admin', icon: Crown, adminOnly: true },
+  { title: 'Reportes Admin', url: '/admin/reports', icon: BarChart3, adminOnly: true },
   { title: 'Nuevo Ingreso', url: '/income/new', icon: PlusCircle, adminOnly: false },
   { title: 'Mis Ingresos', url: '/income', icon: Euro, adminOnly: false },
   { title: 'Mis Gastos', url: '/expenses', icon: TrendingDown, adminOnly: false },
