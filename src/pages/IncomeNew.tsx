@@ -90,9 +90,10 @@ const IncomeNew = () => {
 
       for (const service of data.services) {
         if (service.service_id && service.price > 0) {
+          const s = services.find((srv) => srv.id === service.service_id);
           records.push({
             client_name: data.client_name,
-            service_id: service.service_id,
+            service_type: s?.name ?? 'Servicio',
             price: service.price,
             manicurist: data.manicurist,
             payment_method: data.payment_method,
@@ -106,7 +107,7 @@ const IncomeNew = () => {
       if (data.extras_price && data.extras_price > 0) {
         records.push({
           client_name: data.client_name,
-          service_id: null,
+          service_type: 'Extras',
           price: data.extras_price,
           manicurist: data.manicurist,
           payment_method: data.payment_method,

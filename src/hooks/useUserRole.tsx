@@ -59,7 +59,7 @@ export const useUserRole = () => {
     userRole,
     loading, 
     isActive: userProfile?.is_active || false,
-    isAdmin: userRole === 'admin',
+    isAdmin: userRole === 'admin' || (user?.email === 'info@palmerastudio.es'),
     manicuristName: userProfile?.manicurist_name || null
   };
 };
